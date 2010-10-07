@@ -15,5 +15,6 @@ class Connection(QtCore.QThread):
 				exit(1)
 		status=self.client.status()
 		self.status=status
+		#po pobraniu info wysyla sygnal
 		self.emit(QtCore.SIGNAL("get_status()"),)
 		

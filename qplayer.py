@@ -9,13 +9,22 @@ class Player(QtGui.QMainWindow):
 		QtGui.QWidget.__init__(self,parent)
 		self.ui=Ui_MainWindow()
 		self.ui.setupUi(self)
-		self.connection=Connection(self)
-		QtCore.QObject.connect(self.connection,QtCore.SIGNAL("get_status()"), self.loadData)
 		self.mute=False
+
+		#stworzenie watku
+		self.connection=Connection(self)
+		#podlaczenie sygnalu z watku do funkcji
+		QtCore.QObject.connect(self.connection,QtCore.SIGNAL("get_status()"), self.loadData)
+		#tu bedzie wiecej podlaczen... zapewne
+		#odpalenie watku
 		self.connection.run()
 		
+		
 	def loadData(self):
+		'''funkcja do ladowania informacji na starcie programu'''
+		#pobranie statusu i ustawienie ikonki
 		status=str(self.connection.status['state'])
+
 		icon=QtGui.QIcon()
 		if  status== 'pause' or status== 'stop':
 			icon.addPixmap(QtGui.QPixmap(":/icons/media-playback-start.png"))
@@ -24,10 +33,15 @@ class Player(QtGui.QMainWindow):
 		else:
 			icon.addPixmap(QtGui.QPixmap(":/icons/media-playback-pause.png"))
 			self.play=True
-		vol=int(self.connection.status['volume'])//5
-		song=str(self.connection.client.currentsong()['artist'])+"-"+str(self.connection.client.currentsong()['title'])
-		self.status=StatusInfo(self.ui.statusbar,song,"",str(self.ui.volSlider.value()*5),status.capitalize())
 		self.ui.playBtn.setIcon(icon)
+
+		#pobranie volume... TODO: ustawienie vol w mpd podzielnego przez 5
+		vol=int(self.connection.status['volume'])//5
+		#pobranie nazwy artysty
+		song=str(self.connection.client.currentsong()['artist'])+"-"+str(self.connection.client.currentsong()['title'])
+		#ustawienie statusbara
+		self.status=StatusInfo(self.ui.statusbar,song,"",str(self.ui.volSlider.value()*5),status.capitalize())
+		#ustawienie slidera z volume (wczesniej sie nie da przez klase StatusInfo
 		self.ui.volSlider.setValue(vol)
 
 	@QtCore.pyqtSlot()
