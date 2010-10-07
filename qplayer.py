@@ -87,7 +87,7 @@ class Player(QtGui.QMainWindow):
 		if not self.mute: self.getVolIcon()
 		volume=str(self.ui.volSlider.value()*5)
 		self.ui.volSlider.setToolTip("Volume:"+volume)
-		self.status.setVolume(volume)
+		self.connection.client.setvol(volume)
 		
 	def getVolIcon(self):
 		icon=QtGui.QIcon()
