@@ -23,6 +23,14 @@ class Player(QtGui.QMainWindow):
 			self.play=True
 		self.ui.playBtn.setIcon(icon)
 	@QtCore.pyqtSlot()
+	def on_stopBtn_clicked(self):
+		icon=QtGui.QIcon()
+		if self.play:
+			icon.addPixmap(QtGui.QPixmap(":/icons/media-playback-start.png"))
+			self.play=False
+			self.ui.playBtn.setIcon(icon)
+
+	@QtCore.pyqtSlot()
 	def on_volImg_clicked(self):
 		icon=QtGui.QIcon()
 		if self.mute:
