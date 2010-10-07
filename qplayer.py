@@ -1,35 +1,61 @@
-import sys
+import sys, mpd
 from PyQt4 import QtCore, QtGui,Qt
 from qplayer_ui import * 
 from res_rc import *
+
+PASSWORD = False
+
 class Player(QtGui.QMainWindow):
 	def __init__(self,parent=None):
 		QtGui.QWidget.__init__(self,parent)
 		self.ui=Ui_MainWindow()
 		self.ui.setupUi(self)
+		self.client = mpd.MPDClient()
+		self.client.connect("localhost", 6600)
+		if PASSWORD:
+			try:
+				client.password(PASSWORD)
+			except CommandError:
+				exit(1)
 		self.play=True
 		self.mute=False
 		self.status=StatusInfo(self.ui.statusbar,"","",str(self.ui.volSlider.value()*5))
-		self.getVolIcon()
+		self.getVolIcon() 
+		icon=QtGui.QIcon()
+		if str(self.client.status()['state']) == 'pause':
+			icon.addPixmap(QtGui.QPixmap(":/icons/media-playback-start.png"))
+			print 'a'
+		else:
+			icon.addPixmap(QtGui.QPixmap(":/icons/media-playback-pause.png"))
+			print 'b'
+		self.ui.playBtn.setIcon(icon)
 
 	@QtCore.pyqtSlot()
 	def on_playBtn_clicked(self):
 		icon=QtGui.QIcon()
 		if self.play:
-			icon.addPixmap(QtGui.QPixmap(":/icons/media-playback-start.png"))
-			self.play=False
-		else:
 			icon.addPixmap(QtGui.QPixmap(":/icons/media-playback-pause.png"))
+			self.play=False
+			self.client.play()
+		else:
+			icon.addPixmap(QtGui.QPixmap(":/icons/media-playback-start.png"))
 			self.play=True
+			self.client.pause()
 		self.ui.playBtn.setIcon(icon)
 	@QtCore.pyqtSlot()
+	def on_nextBtn_clicked(self):
+		self.client.next()
+	@QtCore.pyqtSlot()
+	def on_prevBtn_clicked(self):
+		self.client.previous()
 	def on_stopBtn_clicked(self):
+		self.client.stop()
 		icon=QtGui.QIcon()
 		if self.play:
 			icon.addPixmap(QtGui.QPixmap(":/icons/media-playback-start.png"))
 			self.play=False
 			self.ui.playBtn.setIcon(icon)
-
+		
 	@QtCore.pyqtSlot()
 	def on_volImg_clicked(self):
 		icon=QtGui.QIcon()
