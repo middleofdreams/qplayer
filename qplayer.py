@@ -9,7 +9,7 @@ class Player(QtGui.QMainWindow):
 		self.ui.setupUi(self)
 		self.play=True
 		self.mute=False
-		self.status=StatusInfo(self.ui.statusbar,"","",str(self.ui.volSlider.value()*5))
+		self.status=StatusInfo(self.ui.statusbar,"","",str(self.ui.volSlider.value()*5),"Playing")
 		self.getVolIcon()
 
 	@QtCore.pyqtSlot()
@@ -18,9 +18,11 @@ class Player(QtGui.QMainWindow):
 		if self.play:
 			icon.addPixmap(QtGui.QPixmap(":/icons/media-playback-start.png"))
 			self.play=False
+			self.status.setPlaying("Paused")
 		else:
 			icon.addPixmap(QtGui.QPixmap(":/icons/media-playback-pause.png"))
 			self.play=True
+			self.status.setPlaying("Playing")
 		self.ui.playBtn.setIcon(icon)
 	@QtCore.pyqtSlot()
 	def on_stopBtn_clicked(self):
@@ -29,7 +31,7 @@ class Player(QtGui.QMainWindow):
 			icon.addPixmap(QtGui.QPixmap(":/icons/media-playback-start.png"))
 			self.play=False
 			self.ui.playBtn.setIcon(icon)
-
+		self.status.setPlaying("Stopped")
 	@QtCore.pyqtSlot()
 	def on_volImg_clicked(self):
 		icon=QtGui.QIcon()
@@ -58,14 +60,15 @@ class Player(QtGui.QMainWindow):
 
 class StatusInfo(object):
 	
-	def __init__(self,statusbar,track,time,volume):
+	def __init__(self,statusbar,track,time,volume,playing):
 		self.statusbar=statusbar
 		self.track=track
 		self.time=time
 		self.volume=volume
+		self.playing=playing
 		self.setStatus()
 	def setStatus(self):
-		status=self.track+" || "+self.time+" || "+self.volume+"%"
+		status=self.playing+" || "+self.track+" || "+self.time+" || "+self.volume+"%"
 		self.statusbar.showMessage(status)
 		
 
@@ -77,6 +80,9 @@ class StatusInfo(object):
 		self.setStatus()		
 	def setTrack(self,x):
 		self.track=x
+		self.setStatus()
+	def setPlaying(self,x):
+		self.playing=x
 		self.setStatus()
 if __name__=="__main__":
 	app= QtGui.QApplication(sys.argv)
