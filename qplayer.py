@@ -10,7 +10,7 @@ class Player(QtGui.QMainWindow):
 		self.ui=Ui_MainWindow()
 		self.ui.setupUi(self)
 		self.mute=False
-
+		
 		#stworzenie watku
 		self.connection=Connection(self)
 		#podlaczenie sygnalu z watku do funkcji
@@ -43,7 +43,7 @@ class Player(QtGui.QMainWindow):
 		self.status=StatusInfo(self.ui.statusbar,song,"",str(self.ui.volSlider.value()*5),status.capitalize())
 		#ustawienie slidera z volume (wczesniej sie nie da przez klase StatusInfo
 		self.ui.volSlider.setValue(vol)
-
+		self.vol=vol
 	@QtCore.pyqtSlot()
 	def on_playBtn_clicked(self):
 		icon=QtGui.QIcon()
@@ -79,9 +79,14 @@ class Player(QtGui.QMainWindow):
 		if self.mute:
 			self.getVolIcon()
 			self.mute=False
+			vol=self.vol*5
+			self.connection.client.setvol(vol)
 		else:
 			icon.addPixmap(QtGui.QPixmap(":/icons/audio-volume-muted.png"))
 			self.mute=True
+			self.vol=int(self.connection.status['volume'])//5
+			self.connection.client.setvol(0)
+			
 			self.ui.volImg.setIcon(icon)
 	def on_volSlider_valueChanged(self,a):
 		if not self.mute: self.getVolIcon()
@@ -89,6 +94,7 @@ class Player(QtGui.QMainWindow):
 		self.ui.volSlider.setToolTip("Volume:"+volume)
 		self.connection.client.setvol(volume)
 		self.status.setVolume(volume)
+		self.vol=volume
 		
 	def getVolIcon(self):
 		icon=QtGui.QIcon()
