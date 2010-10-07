@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'qplayer.ui'
 #
-# Created: Wed Oct  6 15:21:44 2010
+# Created: Thu Oct  7 08:27:26 2010
 #      by: PyQt4 UI code generator 4.7.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -20,8 +20,8 @@ class Ui_MainWindow(object):
         self.verticalLayout_2.setMargin(0)
         self.verticalLayout_2.setObjectName("verticalLayout_2")
         self.frame = QtGui.QFrame(self.centralwidget)
-        self.frame.setFrameShape(QtGui.QFrame.StyledPanel)
-        self.frame.setFrameShadow(QtGui.QFrame.Raised)
+        self.frame.setFrameShape(QtGui.QFrame.NoFrame)
+        self.frame.setFrameShadow(QtGui.QFrame.Sunken)
         self.frame.setObjectName("frame")
         self.horizontalLayout = QtGui.QHBoxLayout(self.frame)
         self.horizontalLayout.setContentsMargins(14, 2, 14, 2)
@@ -87,6 +87,7 @@ class Ui_MainWindow(object):
         spacerItem = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.horizontalLayout.addItem(spacerItem)
         self.volSlider = QtGui.QSlider(self.frame)
+        self.volSlider.setMaximumSize(QtCore.QSize(70, 16777215))
         self.volSlider.setMaximum(20)
         self.volSlider.setSingleStep(1)
         self.volSlider.setPageStep(2)
@@ -117,16 +118,12 @@ class Ui_MainWindow(object):
         self.horizontalLayout_2 = QtGui.QHBoxLayout(self.frame_2)
         self.horizontalLayout_2.setContentsMargins(-1, 0, -1, 0)
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
-        self.label = QtGui.QLabel(self.frame_2)
-        self.label.setObjectName("label")
-        self.horizontalLayout_2.addWidget(self.label)
-        self.horizontalSlider = QtGui.QSlider(self.frame_2)
-        self.horizontalSlider.setOrientation(QtCore.Qt.Horizontal)
-        self.horizontalSlider.setObjectName("horizontalSlider")
-        self.horizontalLayout_2.addWidget(self.horizontalSlider)
-        self.label_2 = QtGui.QLabel(self.frame_2)
-        self.label_2.setObjectName("label_2")
-        self.horizontalLayout_2.addWidget(self.label_2)
+        self.progressBar = QtGui.QProgressBar(self.frame_2)
+        self.progressBar.setMaximumSize(QtCore.QSize(16777215, 12))
+        self.progressBar.setSizeIncrement(QtCore.QSize(0, 0))
+        self.progressBar.setProperty("value", 24)
+        self.progressBar.setObjectName("progressBar")
+        self.horizontalLayout_2.addWidget(self.progressBar)
         self.verticalLayout_2.addWidget(self.frame_2)
         self.tabWidget = QtGui.QTabWidget(self.centralwidget)
         self.tabWidget.setObjectName("tabWidget")
@@ -158,8 +155,6 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow", "MainWindow", None, QtGui.QApplication.UnicodeUTF8))
-        self.label.setText(QtGui.QApplication.translate("MainWindow", "0:00", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_2.setText(QtGui.QApplication.translate("MainWindow", "0:00", None, QtGui.QApplication.UnicodeUTF8))
         self.treeWidget.headerItem().setText(0, QtGui.QApplication.translate("MainWindow", "no", None, QtGui.QApplication.UnicodeUTF8))
         self.treeWidget.headerItem().setText(1, QtGui.QApplication.translate("MainWindow", "Track", None, QtGui.QApplication.UnicodeUTF8))
         self.treeWidget.headerItem().setText(2, QtGui.QApplication.translate("MainWindow", "Artist", None, QtGui.QApplication.UnicodeUTF8))

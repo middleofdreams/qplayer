@@ -24,10 +24,10 @@
     <item>
      <widget class="QFrame" name="frame">
       <property name="frameShape">
-       <enum>QFrame::StyledPanel</enum>
+       <enum>QFrame::NoFrame</enum>
       </property>
       <property name="frameShadow">
-       <enum>QFrame::Raised</enum>
+       <enum>QFrame::Sunken</enum>
       </property>
       <layout class="QHBoxLayout" name="horizontalLayout">
        <property name="leftMargin">
@@ -216,6 +216,12 @@
        </item>
        <item>
         <widget class="QSlider" name="volSlider">
+         <property name="maximumSize">
+          <size>
+           <width>70</width>
+           <height>16777215</height>
+          </size>
+         </property>
          <property name="maximum">
           <number>20</number>
          </property>
@@ -296,23 +302,21 @@
         <number>0</number>
        </property>
        <item>
-        <widget class="QLabel" name="label">
-         <property name="text">
-          <string>0:00</string>
+        <widget class="QProgressBar" name="progressBar">
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>12</height>
+          </size>
          </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QSlider" name="horizontalSlider">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
+         <property name="sizeIncrement">
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
          </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="label_2">
-         <property name="text">
-          <string>0:00</string>
+         <property name="value">
+          <number>24</number>
          </property>
         </widget>
        </item>
