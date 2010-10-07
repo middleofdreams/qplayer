@@ -26,7 +26,7 @@ class Player(QtGui.QMainWindow):
 			pr=str(self.connection.status['time']).split(":")
 			self.ui.progressBar.setMaximum(int(pr[1]))
 			self.ui.progressBar.setValue(int(pr[0]))
-			
+			self.ui.progressBar.setFormat(str(int(pr[0])//60).zfill(2)+":"+str(int(pr[0])%60).zfill(2))
 		except:
 			pass
 	def loadData(self):
