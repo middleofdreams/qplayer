@@ -1,26 +1,22 @@
-import sys, mpd
+import sys
 from PyQt4 import QtCore, QtGui,Qt
 from qplayer_ui import * 
 from res_rc import *
-
-PASSWORD = False
+from connection import *
 
 class Player(QtGui.QMainWindow):
 	def __init__(self,parent=None):
 		QtGui.QWidget.__init__(self,parent)
 		self.ui=Ui_MainWindow()
 		self.ui.setupUi(self)
-		self.client = mpd.MPDClient()
-		self.client.connect("localhost", 6600)
-		if PASSWORD:
-			try:
-				client.password(PASSWORD)
-			except CommandError:
-				exit(1)
+		self.connection=Connection(self)
+		QtCore.QObject.connect(self.connection,QtCore.SIGNAL("get_status()"), self.loadData)
 		self.mute=False
-		self.getVolIcon()
+		self.connection.run()
+		
+	def loadData(self):
+		status=str(self.connection.status['state'])
 		icon=QtGui.QIcon()
-		status=str(self.client.status()['state'])
 		if  status== 'pause' or status== 'stop':
 			icon.addPixmap(QtGui.QPixmap(":/icons/media-playback-start.png"))
 			self.play=False
@@ -28,8 +24,11 @@ class Player(QtGui.QMainWindow):
 		else:
 			icon.addPixmap(QtGui.QPixmap(":/icons/media-playback-pause.png"))
 			self.play=True
-		self.status=StatusInfo(self.ui.statusbar,"","",str(self.ui.volSlider.value()*5),status.capitalize())
+		vol=int(self.connection.status['volume'])//5
+		song=str(self.connection.client.currentsong()['artist'])+"-"+str(self.connection.client.currentsong()['title'])
+		self.status=StatusInfo(self.ui.statusbar,song,"",str(self.ui.volSlider.value()*5),status.capitalize())
 		self.ui.playBtn.setIcon(icon)
+		self.ui.volSlider.setValue(vol)
 
 	@QtCore.pyqtSlot()
 	def on_playBtn_clicked(self):
@@ -38,21 +37,21 @@ class Player(QtGui.QMainWindow):
 			icon.addPixmap(QtGui.QPixmap(":/icons/media-playback-start.png"))
 			self.play=False
 			self.status.setPlaying("Paused")
-			self.client.pause()
+			self.connection.client.pause()
 		else:
 			icon.addPixmap(QtGui.QPixmap(":/icons/media-playback-pause.png"))
 			self.play=True
 			self.status.setPlaying("Playing")
-			self.client.play()
+			self.connection.client.play()
 		self.ui.playBtn.setIcon(icon)
 	@QtCore.pyqtSlot()
 	def on_nextBtn_clicked(self):
-		self.client.next()
+		self.connection.client.next()
 	@QtCore.pyqtSlot()
 	def on_prevBtn_clicked(self):
-		self.client.previous()
+		self.connection.client.previous()
 	def on_stopBtn_clicked(self):
-		self.client.stop()
+		self.connection.client.stop()
 		icon=QtGui.QIcon()
 		if self.play:
 			icon.addPixmap(QtGui.QPixmap(":/icons/media-playback-start.png"))
