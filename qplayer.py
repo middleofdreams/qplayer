@@ -9,9 +9,13 @@ class Player(QtGui.QMainWindow):
 		QtGui.QWidget.__init__(self,parent)
 		self.ui=Ui_MainWindow()
 		self.ui.setupUi(self)
+		self.ui.treeWidget.setColumnWidth(0,17)
+		self.ui.treeWidget.setHeaderLabel("#")
+
 		self.mute=False
 
 		self.play=False
+		self.plItem=None
 		#stworzenie watku
 		self.connection=Connection(self)
 		self.pupd=ProgressUpdate(self)
@@ -33,7 +37,7 @@ class Player(QtGui.QMainWindow):
 			except:
 				#worst line ever?
 				ti=self.connection.client.playlistinfo()[int(self.connection.client.status()['songid'])]
-				pr=[ti['pos'],ti['time']]
+				pr=[0,ti['time']]
 			self.ui.progressBar.setMaximum(int(pr[1]))
 			self.ui.progressBar.setValue(int(pr[0]))
 			self.ui.progressBar.setFormat(str(int(pr[0])//60).zfill(2)+":"+str(int(pr[0])%60).zfill(2))
@@ -73,15 +77,19 @@ class Player(QtGui.QMainWindow):
 		else:
 			icon.addPixmap(QtGui.QPixmap(":/icons/media-playback-pause.png"))
 			self.play=True
+			self.pupd.timer.start()
 		self.ui.playBtn.setIcon(icon)
 
+
+		#pobranie nazwy artysty
+		try:
+			song=str(self.connection.client.currentsong()['artist'])+"-"+str(self.connection.client.currentsong()['title'])
+		except: song=""
+		self.status=StatusInfo(self.ui.statusbar,song,"",str(self.ui.volSlider.value()*5),status.capitalize())
 		#pobranie volume... TODO: ustawienie vol w mpd podzielnego przez 5
 		vol=int(self.connection.status['volume'])//5
-		#pobranie nazwy artysty
-		song=str(self.connection.client.currentsong()['artist'])+"-"+str(self.connection.client.currentsong()['title'])
-
-		self.status=StatusInfo(self.ui.statusbar,song,"",str(self.ui.volSlider.value()*5),status.capitalize())
-
+		self.ui.volSlider.setValue(vol)
+		self.getVolIcon()
 		if self.play:
 			self.updateBar(True)
 		else:
@@ -90,13 +98,15 @@ class Player(QtGui.QMainWindow):
 			self.ui.progressBar.setFormat("00:00")
 		#ladowanie playlisty:
 		for track in self.connection.client.playlistinfo():
-			item=QtGui.QTreeWidgetItem([str(int(track['id'])+1),track['artist'],track['title'],track['album'],track['file'].split("/")[-1],track['file']])
+			item=QtGui.QTreeWidgetItem([" ",str(int(track['id'])+1),track['artist'],track['title'],track['album'],track['file'].split("/")[-1],track['file']])
 			self.ui.treeWidget.addTopLevelItem(item)
+		self.highlightTrack()
 		
 	def changeSong(self):
 		song=str(self.connection.client.currentsong()['artist'])+"-"+str(self.connection.client.currentsong()['title'])
 		self.status.setTrack(song)
 		self.updateBar(True)
+		self.highlightTrack()
 
 
 	@QtCore.pyqtSlot()
@@ -108,6 +118,7 @@ class Player(QtGui.QMainWindow):
 			self.connection.client.pause()
 			self.updateBar(True)		
 			self.play=False
+			self.pupd.timer.stop()
 
 		else:
 			icon.addPixmap(QtGui.QPixmap(":/icons/media-playback-pause.png"))
@@ -116,6 +127,7 @@ class Player(QtGui.QMainWindow):
 			self.updateBar(True)
 
 			self.play=True
+			self.pupd.timer.start()
 
 		self.ui.playBtn.setIcon(icon)
 
@@ -128,6 +140,7 @@ class Player(QtGui.QMainWindow):
 		if not self.play:
 			self.connection.client.play()
 			self.play=True
+			self.pupd.timer.start()
 			
 		icon.addPixmap(QtGui.QPixmap(":/icons/media-playback-pause.png"))
 		self.status.setPlaying("Playing")
@@ -137,10 +150,12 @@ class Player(QtGui.QMainWindow):
 
 	@QtCore.pyqtSlot()
 	def on_prevBtn_clicked(self):
+
 		icon=QtGui.QIcon()
 		if not self.play:
 			self.connection.client.play()
 			self.play=True
+			self.pupd.timer.start()
 			
 		icon.addPixmap(QtGui.QPixmap(":/icons/media-playback-pause.png"))
 		self.status.setPlaying("Playing")
@@ -151,11 +166,13 @@ class Player(QtGui.QMainWindow):
 
 	def on_stopBtn_clicked(self):
 		self.connection.client.stop()
+
 		icon=QtGui.QIcon()
 		if self.play:
 			icon.addPixmap(QtGui.QPixmap(":/icons/media-playback-start.png"))
 			self.ui.playBtn.setIcon(icon)
 		self.play=False
+		self.pupd.timer.stop()
 
 		self.status.setPlaying("Stopped")
 		self.ui.progressBar.setMaximum(200)
@@ -179,6 +196,7 @@ class Player(QtGui.QMainWindow):
 			self.connection.client.setvol(0)
 			
 			self.ui.volImg.setIcon(icon)
+			
 	def on_volSlider_valueChanged(self,a):
 		if not self.mute: self.getVolIcon()
 		volume=str(self.ui.volSlider.value()*5)
@@ -196,6 +214,24 @@ class Player(QtGui.QMainWindow):
 		else: vol="muted"
 		icon.addPixmap(QtGui.QPixmap(":/icons/audio-volume-"+vol+".png"))
 		self.ui.volImg.setIcon(icon)
+		
+	def highlightTrack(self):
+		try:
+			item=self.ui.treeWidget.topLevelItem(int(self.connection.client.currentsong()['id']))
+			item.setText(0,"#")
+
+		except: item=None
+	
+		try:
+			self.plItem.setText(0,"")
+
+		except: pass
+		self.plItem=item
+
+	def on_treeWidget_itemDoubleClicked(self,e):
+		nr=e.text(1)
+		self.connection.client.playid(int(nr)-1)
+	
 
 class StatusInfo(object):
 	
@@ -232,7 +268,6 @@ class ProgressUpdate(QtCore.QThread):
 		
 	def run(self):
 		self.timer.setInterval(1000)
-		self.timer.start()
 			
 
 		
