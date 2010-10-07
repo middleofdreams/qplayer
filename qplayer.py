@@ -15,11 +15,20 @@ class Player(QtGui.QMainWindow):
 		self.connection=Connection(self)
 		#podlaczenie sygnalu z watku do funkcji
 		QtCore.QObject.connect(self.connection,QtCore.SIGNAL("get_status()"), self.loadData)
+		QtCore.QObject.connect(self.connection,QtCore.SIGNAL("update_bar()"), self.updateBar)
+
 		#tu bedzie wiecej podlaczen... zapewne
 		#odpalenie watku
-		self.connection.run()
+		self.connection.start()
 		
-		
+	def updateBar(self):
+		try:
+			pr=str(self.connection.status['time']).split(":")
+			self.ui.progressBar.setMaximum(int(pr[1]))
+			self.ui.progressBar.setValue(int(pr[0]))
+			
+		except:
+			pass
 	def loadData(self):
 		'''funkcja do ladowania informacji na starcie programu'''
 		#pobranie statusu i ustawienie ikonki
