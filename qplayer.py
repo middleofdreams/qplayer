@@ -289,10 +289,9 @@ class Player(QtGui.QMainWindow):
 			print elements
 			print "przeniesiony na pozycje"
 			print b
-			c=self.ui.treeWidget.topLevelItem(b).text(0)
-			z=int(c)-1
+			c=int(self.ui.treeWidget.topLevelItem(b).text(0))-1
 			print c
-			self.connection.client.move(z,b)
+			self.connection.client.move(c,b)
 			
 	def on_treeWidget_2_itemActivated(self,e):
 		self.connection.sthchanging=True
