@@ -10,25 +10,49 @@ class Player(QtGui.QMainWindow):
 		self.ui=Ui_MainWindow()
 		self.ui.setupUi(self)
 		self.mute=False
-		
+		self.play=False
 		#stworzenie watku
 		self.connection=Connection(self)
+		self.pupd=ProgressUpdate(self)
 		#podlaczenie sygnalu z watku do funkcji
 		QtCore.QObject.connect(self.connection,QtCore.SIGNAL("get_status()"), self.loadData)
-		QtCore.QObject.connect(self.connection,QtCore.SIGNAL("update_bar()"), self.updateBar)
+		QtCore.QObject.connect(self.pupd,QtCore.SIGNAL("update_bar()"), self.updateBar)
+		QtCore.QObject.connect(self.connection,QtCore.SIGNAL("change_song()"), self.changeSong)
 
 		#tu bedzie wiecej podlaczen... zapewne
 		#odpalenie watku
 		self.connection.start()
+		self.pupd.start()
 		
-	def updateBar(self):
-		try:
-			pr=str(self.connection.status['time']).split(":")
+	def updateBar(self,newtrack=False):
+		if newtrack:
+			try:
+				pr=str(self.connection.status['time']).split(":")
+			except KeyError:
+				#worst line ever?
+				ti=self.connection.client.playlistinfo()[int(self.connection.client.status()['songid'])]
+				pr=[ti['pos'],ti['time']]
 			self.ui.progressBar.setMaximum(int(pr[1]))
 			self.ui.progressBar.setValue(int(pr[0]))
 			self.ui.progressBar.setFormat(str(int(pr[0])//60).zfill(2)+":"+str(int(pr[0])%60).zfill(2))
-		except:
-			pass
+			
+		else:
+			#try:
+				self.ui.progressBar.setValue(int(self.ui.progressBar.value())+1)
+				t=self.ui.progressBar.text()
+				m,s=str(t).split(":")
+				m=int(m)
+				s=int(s)
+				if s==59:
+					s=0
+					m=+1
+				else:
+					s=s+1
+					
+					
+				self.ui.progressBar.setFormat(str(m).zfill(2)+":"+str(s).zfill(2))
+			#except:
+			#	pass
 	def loadData(self):
 		'''funkcja do ladowania informacji na starcie programu'''
 		#pobranie statusu i ustawienie ikonki
@@ -53,6 +77,12 @@ class Player(QtGui.QMainWindow):
 		#ustawienie slidera z volume (wczesniej sie nie da przez klase StatusInfo
 		self.ui.volSlider.setValue(vol)
 		self.vol=vol
+		self.updateBar(True)
+	def changeSong(self):
+		song=str(self.connection.client.currentsong()['artist'])+"-"+str(self.connection.client.currentsong()['title'])
+		self.status.setTrack(song)
+		self.updateBar(True)
+
 	@QtCore.pyqtSlot()
 	def on_playBtn_clicked(self):
 		icon=QtGui.QIcon()
@@ -141,6 +171,18 @@ class StatusInfo(object):
 	def setPlaying(self,x):
 		self.playing=x
 		self.setStatus()
+		
+class ProgressUpdate(QtCore.QThread):
+	def __init__(self,parent):
+		super(ProgressUpdate,self).__init__(parent)		
+		self.parent=parent
+	def run(self):
+		while True:
+			if self.parent.play:
+				self.emit(QtCore.SIGNAL("update_bar()"),)
+			self.sleep(1)
+
+		
 if __name__=="__main__":
 	app= QtGui.QApplication(sys.argv)
 	myapp = Player()

@@ -13,12 +13,17 @@ class Connection(QtCore.QThread):
 				client.password(PASSWORD)
 			except CommandError:
 				exit(1)
-		
 		self.status=self.client.status()
 		#po pobraniu info wysyla sygnal
 		self.emit(QtCore.SIGNAL("get_status()"),)
 		self.running=True
+		self.currentsong=self.client.currentsong()
+		
 		while self.running:
 			self.sleep(1)
 			self.status=self.client.status()
-			self.emit(QtCore.SIGNAL("update_bar()"))
+			if self.currentsong!=self.client.currentsong():
+				self.currentsong=self.client.currentsong()
+				self.emit(QtCore.SIGNAL("change_song()"),)
+				
+
