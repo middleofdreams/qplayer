@@ -307,9 +307,14 @@ class Player(QtGui.QMainWindow):
 		maxpx= int(self.ui.progressBar.width())
 		maxs= int(self.ui.progressBar.maximum())
 		newS=(newpx*maxs)//maxpx
-		self.connection.client.seek(self.connection.status['song'],str(newS))	
-		self.ui.progressBar.setValue(newS)
-		self.ui.progressBar.setFormat(self.getTime({'time':newS}))
+		if float(newS)/float(maxs)*100 >= 95:
+			self.ui.progressBar.setValue(newS)
+			self.ui.progressBar.setFormat(self.getTime({'time':newS}))
+			self.connection.next()
+		else:
+			self.connection.client.seek(self.connection.status['song'],str(newS))	
+			self.ui.progressBar.setValue(newS)
+			self.ui.progressBar.setFormat(self.getTime({'time':newS}))
 
 	def setPlayPauseBtn(self):
 		icon=QtGui.QIcon()
