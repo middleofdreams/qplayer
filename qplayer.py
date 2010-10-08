@@ -284,13 +284,7 @@ class Player(QtGui.QMainWindow):
 		QtGui.QTreeWidget.rowsInserted(self.ui.treeWidget,a,b,c)
 		if not self.playlistloading:
 			elements=self.ui.treeWidget.topLevelItem(b).text(1)
-			print
-			print "Element"
-			print elements
-			print "przeniesiony na pozycje"
-			print b
 			c=int(self.ui.treeWidget.topLevelItem(b).text(0))-1
-			print c
 			self.connection.client.move(c,b)
 			
 	def on_treeWidget_2_itemActivated(self,e):
