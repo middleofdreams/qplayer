@@ -60,6 +60,7 @@ class Connection(QtCore.QThread):
 	def error(self,err_nr):
 		if err_nr==1:
 			self.emit(QtCore.SIGNAL("playback_error()"),)
+			
 
 	def play(self,id=None):
 		if id==None:
@@ -76,14 +77,14 @@ class Connection(QtCore.QThread):
 		if self.call('status')['state']!="stop": self.error(1)	
 	def previous(self):
 		self.call('previous')
-		if self.call('status')['state']!="play": self.error(1)							
-
+		if self.call('status')['state']!="play": self.error(1)	
 	def next(self):
 		self.call('next')
 		if self.call('status')['state']!="play": self.error(1)		
 	def call(self,cmd,*args):
 		if cmd=='status':
 			value=getattr(self.client,cmd)(*args)
+			
 			if value and 'state' in value:
 				return value
 			else: 
