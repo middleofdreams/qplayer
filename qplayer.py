@@ -9,6 +9,9 @@ class Player(QtGui.QMainWindow):
 		QtGui.QWidget.__init__(self,parent)
 		self.ui=Ui_MainWindow()
 		self.ui.setupUi(self)
+		self.ui.treeWidget.setColumnWidth(0,17)
+		self.ui.treeWidget.setHeaderLabel("#")
+
 		self.mute=False
 
 		self.play=False
@@ -79,8 +82,9 @@ class Player(QtGui.QMainWindow):
 
 
 		#pobranie nazwy artysty
-		song=str(self.connection.client.currentsong()['artist'])+"-"+str(self.connection.client.currentsong()['title'])
-
+		try:
+			song=str(self.connection.client.currentsong()['artist'])+"-"+str(self.connection.client.currentsong()['title'])
+		except: song=""
 		self.status=StatusInfo(self.ui.statusbar,song,"",str(self.ui.volSlider.value()*5),status.capitalize())
 		#pobranie volume... TODO: ustawienie vol w mpd podzielnego przez 5
 		vol=int(self.connection.status['volume'])//5
@@ -214,12 +218,19 @@ class Player(QtGui.QMainWindow):
 			item=self.ui.treeWidget.topLevelItem(int(self.connection.client.currentsong()['id']))
 			item.setText(0,"#")
 
-		except: pass
-			
+		except: item=None
+	
 		try:
 			self.plItem.setText(0,"")
+
 		except: pass
 		self.plItem=item
+
+	def on_treeWidget_itemActivated(self,e):
+		nr=e.text(1)
+		self.connection.client.play(int(nr)-1)
+	
+
 class StatusInfo(object):
 	
 	def __init__(self,statusbar,track,time,volume,playing):
