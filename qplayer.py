@@ -75,13 +75,15 @@ class Player(QtGui.QMainWindow):
 			self.play=True
 		self.ui.playBtn.setIcon(icon)
 
-		#pobranie volume... TODO: ustawienie vol w mpd podzielnego przez 5
-		vol=int(self.connection.status['volume'])//5
+
 		#pobranie nazwy artysty
 		song=str(self.connection.client.currentsong()['artist'])+"-"+str(self.connection.client.currentsong()['title'])
 
 		self.status=StatusInfo(self.ui.statusbar,song,"",str(self.ui.volSlider.value()*5),status.capitalize())
-
+		#pobranie volume... TODO: ustawienie vol w mpd podzielnego przez 5
+		vol=int(self.connection.status['volume'])//5
+		self.ui.volSlider.setValue(vol)
+		self.getVolIcon()
 		if self.play:
 			self.updateBar(True)
 		else:
