@@ -10,6 +10,7 @@ class Player(QtGui.QMainWindow):
 		self.ui=Ui_MainWindow()
 		self.ui.setupUi(self)
 		self.mute=False
+
 		self.play=False
 		#stworzenie watku
 		self.connection=Connection(self)
@@ -53,10 +54,15 @@ class Player(QtGui.QMainWindow):
 				self.ui.progressBar.setFormat(str(m).zfill(2)+":"+str(s).zfill(2))
 			#except:
 			#	pass
+
+		
+	
 	def loadData(self):
 		'''funkcja do ladowania informacji na starcie programu'''
 		#pobranie statusu i ustawienie ikonki
 		status=str(self.connection.status['state'])
+	
+
 
 		icon=QtGui.QIcon()
 		if  status== 'pause' or status== 'stop':
@@ -72,11 +78,9 @@ class Player(QtGui.QMainWindow):
 		vol=int(self.connection.status['volume'])//5
 		#pobranie nazwy artysty
 		song=str(self.connection.client.currentsong()['artist'])+"-"+str(self.connection.client.currentsong()['title'])
-		#ustawienie statusbara
+
 		self.status=StatusInfo(self.ui.statusbar,song,"",str(self.ui.volSlider.value()*5),status.capitalize())
-		#ustawienie slidera z volume (wczesniej sie nie da przez klase StatusInfo
-		self.ui.volSlider.setValue(vol)
-		self.vol=vol
+
 		if self.play:
 			self.updateBar(True)
 		else:
@@ -93,6 +97,7 @@ class Player(QtGui.QMainWindow):
 		self.status.setTrack(song)
 		self.updateBar(True)
 
+
 	@QtCore.pyqtSlot()
 	def on_playBtn_clicked(self):
 		icon=QtGui.QIcon()
@@ -107,16 +112,43 @@ class Player(QtGui.QMainWindow):
 			self.status.setPlaying("Playing")
 			self.connection.client.play()
 		self.ui.playBtn.setIcon(icon)
+
 		self.updateBar(True)
+
+
 
 	@QtCore.pyqtSlot()
 	def on_nextBtn_clicked(self):
-		self.connection.client.next()
+		icon=QtGui.QIcon()
+		if self.play:
+			icon.addPixmap(QtGui.QPixmap(":/icons/media-playback-pause.png"))
+			self.play=False
+			self.status.setPlaying("Playing")
+			self.connection.client.next()
+		else:
+			icon.addPixmap(QtGui.QPixmap(":/icons/media-playback-pause.png"))
+			self.play=True
+			self.status.setPlaying("Playing")
+			self.connection.client.play()
+			self.connection.client.next()
+		self.ui.playBtn.setIcon(icon)
 		self.updateBar(True)
 
 	@QtCore.pyqtSlot()
 	def on_prevBtn_clicked(self):
-		self.connection.client.previous()
+		icon=QtGui.QIcon()
+		if self.play:
+			icon.addPixmap(QtGui.QPixmap(":/icons/media-playback-pause.png"))
+			self.play=False
+			self.status.setPlaying("Playing")
+			self.connection.client.previous()
+		else:
+			icon.addPixmap(QtGui.QPixmap(":/icons/media-playback-pause.png"))
+			self.play=True
+			self.status.setPlaying("Playing")
+			self.connection.client.play()
+			self.connection.client.previous()
+		self.ui.playBtn.setIcon(icon)
 		self.updateBar(True)
 
 	def on_stopBtn_clicked(self):
@@ -124,10 +156,14 @@ class Player(QtGui.QMainWindow):
 		icon=QtGui.QIcon()
 		if self.play:
 			icon.addPixmap(QtGui.QPixmap(":/icons/media-playback-start.png"))
-			self.play=False
 			self.ui.playBtn.setIcon(icon)
+		self.play=False
+
 		self.status.setPlaying("Stopped")
-		self.updateBar(True)
+		self.ui.progressBar.setMaximum(200)
+		self.ui.progressBar.setValue(0)
+		self.ui.progressBar.setFormat("00:00")
+
 
 
 	@QtCore.pyqtSlot()
@@ -189,7 +225,7 @@ class StatusInfo(object):
 	def setPlaying(self,x):
 		self.playing=x
 		self.setStatus()
-		
+
 class ProgressUpdate(QtCore.QThread):
 	def __init__(self,parent):
 		super(ProgressUpdate,self).__init__(parent)		
@@ -202,6 +238,7 @@ class ProgressUpdate(QtCore.QThread):
 			
 
 		
+
 if __name__=="__main__":
 	app= QtGui.QApplication(sys.argv)
 	myapp = Player()
