@@ -16,7 +16,7 @@ class Player(QtGui.QMainWindow):
 		self.pupd=ProgressUpdate(self)
 		#podlaczenie sygnalu z watku do funkcji
 		QtCore.QObject.connect(self.connection,QtCore.SIGNAL("get_status()"), self.loadData)
-		QtCore.QObject.connect(self.pupd,QtCore.SIGNAL("update_bar()"), self.updateBar)
+		QtCore.QObject.connect(self.pupd.timer,QtCore.SIGNAL("timeout()"), self.updateBar)
 		QtCore.QObject.connect(self.connection,QtCore.SIGNAL("change_song()"), self.changeSong)
 
 		#tu bedzie wiecej podlaczen... zapewne
@@ -36,7 +36,7 @@ class Player(QtGui.QMainWindow):
 			self.ui.progressBar.setValue(int(pr[0]))
 			self.ui.progressBar.setFormat(str(int(pr[0])//60).zfill(2)+":"+str(int(pr[0])%60).zfill(2))
 			
-		else:
+		elif not newtrack and self.play:
 			#try:
 				self.ui.progressBar.setValue(int(self.ui.progressBar.value())+1)
 				t=self.ui.progressBar.text()
@@ -176,11 +176,12 @@ class ProgressUpdate(QtCore.QThread):
 	def __init__(self,parent):
 		super(ProgressUpdate,self).__init__(parent)		
 		self.parent=parent
+		self.timer=QtCore.QTimer()
+		
 	def run(self):
-		while True:
-			if self.parent.play:
-				self.emit(QtCore.SIGNAL("update_bar()"),)
-			self.sleep(1)
+		self.timer.setInterval(1000)
+		self.timer.start()
+			
 
 		
 if __name__=="__main__":
