@@ -14,10 +14,10 @@ class Player(QtGui.QMainWindow):
 		self.ui.treeWidget.setColumnHidden(0,True)
 		self.ui.treeWidget.setColumnHidden(4,True)
 		self.ui.treeWidget.setColumnHidden(5,True)
-		self.ui.treeWidget.moveEvent=self.myMoveEvent
 		self.ui.treeWidget.setDragDropMode(QtGui.QAbstractItemView.InternalMove)
 		self.ui.treeWidget.setDragEnabled(True)
 		self.ui.treeWidget.setAcceptDrops(True)
+		self.ui.treeWidget.dropEvent=self.myMoveEvent
 		
 
 		self.ui.treeWidget_2.setHeaderLabel("Artists / Albums / Tracks")
@@ -274,9 +274,6 @@ class Player(QtGui.QMainWindow):
 		self.play=True
 		self.pupd.timer.start()
 		self.setPlayPauseBtn()
-	
-	def myMoveEvent(self,e):
-		print 'dupa'
 			
 	def on_treeWidget_2_itemActivated(self,e):
 		self.connection.sthchanging=True
@@ -311,6 +308,10 @@ class Player(QtGui.QMainWindow):
 				for i in deletionlist:
 					self.connection.call('delete',i) 
 				self.connection.manualPlaylistUpdate()
+				
+	def myMoveEvent(self,e):
+		print 'a'
+		
 
 	def pBkPE(self,event):
 		newpx= int(event.x())
