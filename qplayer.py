@@ -11,7 +11,6 @@ class Player(QtGui.QMainWindow):
 		self.ui.setupUi(self)
 		self.ui.treeWidget.setColumnWidth(0,17)
 		self.ui.treeWidget.setHeaderLabel("#")
-
 		self.mute=False
 
 		self.play=False
@@ -69,23 +68,20 @@ class Player(QtGui.QMainWindow):
 	
 
 
-		icon=QtGui.QIcon()
 		if  status== 'pause' or status== 'stop':
-			icon.addPixmap(QtGui.QPixmap(":/icons/media-playback-start.png"))
 			self.play=False
 
 		else:
-			icon.addPixmap(QtGui.QPixmap(":/icons/media-playback-pause.png"))
 			self.play=True
 			self.pupd.timer.start()
-		self.ui.playBtn.setIcon(icon)
+		self.setPlayPauseBtn()
 
 
 		#pobranie nazwy artysty
-		try:
-			song=str(self.connection.client.currentsong()['artist'])+"-"+str(self.connection.client.currentsong()['title'])
-		except: song=""
-		self.status=StatusInfo(self.ui.statusbar,song,"",str(self.ui.volSlider.value()*5),status.capitalize())
+		title,artist,album=self.getTags(self.connection.client.currentsong())
+		song=artist+" - "+title
+		self.status=StatusInfo(self.ui.statusbar,self,song,"",str(self.ui.volSlider.value()*5),status.capitalize())
+		self.setWindowTitle(song)
 		#pobranie volume... TODO: ustawienie vol w mpd podzielnego przez 5
 		vol=int(self.connection.status['volume'])//5
 		self.ui.volSlider.setValue(vol)
@@ -98,22 +94,23 @@ class Player(QtGui.QMainWindow):
 			self.ui.progressBar.setFormat("00:00")
 		#ladowanie playlisty:
 		for track in self.connection.client.playlistinfo():
-			item=QtGui.QTreeWidgetItem([" ",str(int(track['pos'])+1),track['artist'],track['title'],track['album'],track['file'].split("/")[-1],track['file']])
+			title,artist,album=self.getTags(track)
+			item=QtGui.QTreeWidgetItem([" ",str(int(track['pos'])+1),artist,title,album,track['file'].split("/")[-1],track['file']])
 			self.ui.treeWidget.addTopLevelItem(item)
 		self.highlightTrack()
 		
 	def changeSong(self):
-		song=str(self.connection.client.currentsong()['artist'])+"-"+str(self.connection.client.currentsong()['title'])
+		title,artist,album=self.getTags(self.connection.client.currentsong())
+		song=artist+" - "+title
 		self.status.setTrack(song)
 		self.updateBar(True)
 		self.highlightTrack()
+		self.setWindowTitle(song)
 
 
 	@QtCore.pyqtSlot()
 	def on_playBtn_clicked(self):
-		icon=QtGui.QIcon()
 		if self.play:
-			icon.addPixmap(QtGui.QPixmap(":/icons/media-playback-start.png"))
 			self.status.setPlaying("Paused")
 			self.connection.client.pause()
 			self.updateBar(True)		
@@ -121,7 +118,6 @@ class Player(QtGui.QMainWindow):
 			self.pupd.timer.stop()
 
 		else:
-			icon.addPixmap(QtGui.QPixmap(":/icons/media-playback-pause.png"))
 			self.status.setPlaying("Playing")
 			self.connection.client.play()
 			self.updateBar(True)
@@ -129,49 +125,42 @@ class Player(QtGui.QMainWindow):
 			self.play=True
 			self.pupd.timer.start()
 
-		self.ui.playBtn.setIcon(icon)
-
+		self.setPlayPauseBtn()
 
 
 
 	@QtCore.pyqtSlot()
 	def on_nextBtn_clicked(self):
-		icon=QtGui.QIcon()
 		if not self.play:
 			self.connection.client.play()
 			self.play=True
 			self.pupd.timer.start()
-			
-		icon.addPixmap(QtGui.QPixmap(":/icons/media-playback-pause.png"))
+			self.setPlayPauseBtn()
+	
 		self.status.setPlaying("Playing")
 		self.connection.client.next()
-		self.ui.playBtn.setIcon(icon)
 		self.updateBar(True)
 
 	@QtCore.pyqtSlot()
 	def on_prevBtn_clicked(self):
 
-		icon=QtGui.QIcon()
 		if not self.play:
 			self.connection.client.play()
 			self.play=True
 			self.pupd.timer.start()
-			
-		icon.addPixmap(QtGui.QPixmap(":/icons/media-playback-pause.png"))
+			self.setPlayPauseBtn()
+
 		self.status.setPlaying("Playing")
 		self.connection.client.previous()
-		self.ui.playBtn.setIcon(icon)
 		self.updateBar(True)
 
 
 	def on_stopBtn_clicked(self):
 		self.connection.client.stop()
 
-		icon=QtGui.QIcon()
-		if self.play:
-			icon.addPixmap(QtGui.QPixmap(":/icons/media-playback-start.png"))
-			self.ui.playBtn.setIcon(icon)
 		self.play=False
+		self.setPlayPauseBtn()
+
 		self.pupd.timer.stop()
 
 		self.status.setPlaying("Stopped")
@@ -232,13 +221,31 @@ class Player(QtGui.QMainWindow):
 		self.play=True
 		self.pupd.timer.start()
 		self.status.setPlaying("Playing")
-		
+		self.setPlayPauseBtn()
 	
+	def setPlayPauseBtn(self):
+		icon=QtGui.QIcon()
+		print self.play
+		if self.play:
+			icon.addPixmap(QtGui.QPixmap(":/icons/media-playback-pause.png"))
+		else:
+			icon.addPixmap(QtGui.QPixmap(":/icons/media-playback-start.png"))
+		self.ui.playBtn.setIcon(icon)
 
+	def getTags(self,track):
+			try: artist=track['artist']
+			except: artist=""
+			try: title=track['title']
+			except: title=""
+			try: album=track['album']
+			except: album=""
+			if artist=="" and title=="": title=track['file'].split("/")[-1]
+			return title,artist,album
 class StatusInfo(object):
 	
-	def __init__(self,statusbar,track,time,volume,playing):
+	def __init__(self,statusbar,mw,track,time,volume,playing):
 		self.statusbar=statusbar
+		self.mw=mw
 		self.track=track
 		self.time=time
 		self.volume=volume
@@ -247,7 +254,6 @@ class StatusInfo(object):
 	def setStatus(self):
 		status=self.playing+" || "+self.track+" || "+self.time+" || "+self.volume+"%"
 		self.statusbar.showMessage(status)
-		
 
 	def setTime(self,x):
 		self.time=x
