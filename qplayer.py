@@ -12,6 +12,7 @@ class Player(QtGui.QMainWindow):
 		self.mute=False
 
 		self.play=False
+		self.plItem=None
 		#stworzenie watku
 		self.connection=Connection(self)
 		self.pupd=ProgressUpdate(self)
@@ -93,13 +94,15 @@ class Player(QtGui.QMainWindow):
 			self.ui.progressBar.setFormat("00:00")
 		#ladowanie playlisty:
 		for track in self.connection.client.playlistinfo():
-			item=QtGui.QTreeWidgetItem([str(int(track['id'])+1),track['artist'],track['title'],track['album'],track['file'].split("/")[-1],track['file']])
+			item=QtGui.QTreeWidgetItem([" ",str(int(track['id'])+1),track['artist'],track['title'],track['album'],track['file'].split("/")[-1],track['file']])
 			self.ui.treeWidget.addTopLevelItem(item)
+		self.highlightTrack()
 		
 	def changeSong(self):
 		song=str(self.connection.client.currentsong()['artist'])+"-"+str(self.connection.client.currentsong()['title'])
 		self.status.setTrack(song)
 		self.updateBar(True)
+		self.highlightTrack()
 
 
 	@QtCore.pyqtSlot()
@@ -143,6 +146,7 @@ class Player(QtGui.QMainWindow):
 
 	@QtCore.pyqtSlot()
 	def on_prevBtn_clicked(self):
+
 		icon=QtGui.QIcon()
 		if not self.play:
 			self.connection.client.play()
@@ -158,6 +162,7 @@ class Player(QtGui.QMainWindow):
 
 	def on_stopBtn_clicked(self):
 		self.connection.client.stop()
+
 		icon=QtGui.QIcon()
 		if self.play:
 			icon.addPixmap(QtGui.QPixmap(":/icons/media-playback-start.png"))
@@ -204,7 +209,17 @@ class Player(QtGui.QMainWindow):
 		else: vol="muted"
 		icon.addPixmap(QtGui.QPixmap(":/icons/audio-volume-"+vol+".png"))
 		self.ui.volImg.setIcon(icon)
+	def highlightTrack(self):
+		try:
+			item=self.ui.treeWidget.topLevelItem(int(self.connection.client.currentsong()['id']))
+			item.setText(0,"#")
 
+		except: pass
+			
+		try:
+			self.plItem.setText(0,"")
+		except: pass
+		self.plItem=item
 class StatusInfo(object):
 	
 	def __init__(self,statusbar,track,time,volume,playing):
