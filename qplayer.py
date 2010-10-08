@@ -98,7 +98,7 @@ class Player(QtGui.QMainWindow):
 			self.ui.progressBar.setFormat("00:00")
 		#ladowanie playlisty:
 		for track in self.connection.client.playlistinfo():
-			item=QtGui.QTreeWidgetItem([" ",str(int(track['id'])+1),track['artist'],track['title'],track['album'],track['file'].split("/")[-1],track['file']])
+			item=QtGui.QTreeWidgetItem([" ",str(int(track['pos'])+1),track['artist'],track['title'],track['album'],track['file'].split("/")[-1],track['file']])
 			self.ui.treeWidget.addTopLevelItem(item)
 		self.highlightTrack()
 		
@@ -215,7 +215,7 @@ class Player(QtGui.QMainWindow):
 		self.ui.volImg.setIcon(icon)
 	def highlightTrack(self):
 		try:
-			item=self.ui.treeWidget.topLevelItem(int(self.connection.client.currentsong()['id']))
+			item=self.ui.treeWidget.topLevelItem(int(self.connection.client.currentsong()['pos']))
 			item.setText(0,"#")
 
 		except: item=None
@@ -229,6 +229,10 @@ class Player(QtGui.QMainWindow):
 	def on_treeWidget_itemActivated(self,e):
 		nr=e.text(1)
 		self.connection.client.play(int(nr)-1)
+		self.play=True
+		self.pupd.timer.start()
+		self.status.setPlaying("Playing")
+		
 	
 
 class StatusInfo(object):
