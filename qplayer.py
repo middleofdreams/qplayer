@@ -28,8 +28,9 @@ class Player(QtGui.QMainWindow):
 	def updateBar(self,force=False):
 		if force:
 			try:
-				pr=str(self.connection.status['time']).split(":")
-			except KeyError:
+				pr=str(self.connection.client.status()['time']).split(":")
+				pr[1]
+			except:
 				#worst line ever?
 				ti=self.connection.client.playlistinfo()[int(self.connection.client.status()['songid'])]
 				pr=[ti['pos'],ti['time']]
@@ -103,53 +104,50 @@ class Player(QtGui.QMainWindow):
 		icon=QtGui.QIcon()
 		if self.play:
 			icon.addPixmap(QtGui.QPixmap(":/icons/media-playback-start.png"))
-			self.play=False
 			self.status.setPlaying("Paused")
 			self.connection.client.pause()
+			self.updateBar(True)		
+			self.play=False
+
 		else:
 			icon.addPixmap(QtGui.QPixmap(":/icons/media-playback-pause.png"))
-			self.play=True
 			self.status.setPlaying("Playing")
 			self.connection.client.play()
+			self.updateBar(True)
+
+			self.play=True
+
 		self.ui.playBtn.setIcon(icon)
 
-		self.updateBar(True)
 
 
 
 	@QtCore.pyqtSlot()
 	def on_nextBtn_clicked(self):
 		icon=QtGui.QIcon()
-		if self.play:
-			icon.addPixmap(QtGui.QPixmap(":/icons/media-playback-pause.png"))
-			self.play=False
-			self.status.setPlaying("Playing")
-			self.connection.client.next()
-		else:
-			icon.addPixmap(QtGui.QPixmap(":/icons/media-playback-pause.png"))
-			self.play=True
-			self.status.setPlaying("Playing")
+		if not self.play:
 			self.connection.client.play()
-			self.connection.client.next()
+			self.play=True
+			
+		icon.addPixmap(QtGui.QPixmap(":/icons/media-playback-pause.png"))
+		self.status.setPlaying("Playing")
+		self.connection.client.next()
 		self.ui.playBtn.setIcon(icon)
 		self.updateBar(True)
 
 	@QtCore.pyqtSlot()
 	def on_prevBtn_clicked(self):
 		icon=QtGui.QIcon()
-		if self.play:
-			icon.addPixmap(QtGui.QPixmap(":/icons/media-playback-pause.png"))
-			self.play=False
-			self.status.setPlaying("Playing")
-			self.connection.client.previous()
-		else:
-			icon.addPixmap(QtGui.QPixmap(":/icons/media-playback-pause.png"))
-			self.play=True
-			self.status.setPlaying("Playing")
+		if not self.play:
 			self.connection.client.play()
-			self.connection.client.previous()
+			self.play=True
+			
+		icon.addPixmap(QtGui.QPixmap(":/icons/media-playback-pause.png"))
+		self.status.setPlaying("Playing")
+		self.connection.client.previous()
 		self.ui.playBtn.setIcon(icon)
 		self.updateBar(True)
+
 
 	def on_stopBtn_clicked(self):
 		self.connection.client.stop()
