@@ -45,7 +45,7 @@ class Player(QtGui.QMainWindow):
 				s=int(s)
 				if s==59:
 					s=0
-					m=+1
+					m=m+1
 				else:
 					s=s+1
 					
