@@ -33,7 +33,7 @@ class Player(QtGui.QMainWindow):
 			except:
 				#worst line ever?
 				ti=self.connection.client.playlistinfo()[int(self.connection.client.status()['songid'])]
-				pr=[ti['pos'],ti['time']]
+				pr=[0,ti['time']]
 			self.ui.progressBar.setMaximum(int(pr[1]))
 			self.ui.progressBar.setValue(int(pr[0]))
 			self.ui.progressBar.setFormat(str(int(pr[0])//60).zfill(2)+":"+str(int(pr[0])%60).zfill(2))
@@ -73,6 +73,7 @@ class Player(QtGui.QMainWindow):
 		else:
 			icon.addPixmap(QtGui.QPixmap(":/icons/media-playback-pause.png"))
 			self.play=True
+			self.pupd.timer.start()
 		self.ui.playBtn.setIcon(icon)
 
 
@@ -110,6 +111,7 @@ class Player(QtGui.QMainWindow):
 			self.connection.client.pause()
 			self.updateBar(True)		
 			self.play=False
+			self.pupd.timer.stop()
 
 		else:
 			icon.addPixmap(QtGui.QPixmap(":/icons/media-playback-pause.png"))
@@ -118,6 +120,7 @@ class Player(QtGui.QMainWindow):
 			self.updateBar(True)
 
 			self.play=True
+			self.pupd.timer.start()
 
 		self.ui.playBtn.setIcon(icon)
 
@@ -130,6 +133,7 @@ class Player(QtGui.QMainWindow):
 		if not self.play:
 			self.connection.client.play()
 			self.play=True
+			self.pupd.timer.start()
 			
 		icon.addPixmap(QtGui.QPixmap(":/icons/media-playback-pause.png"))
 		self.status.setPlaying("Playing")
@@ -143,6 +147,7 @@ class Player(QtGui.QMainWindow):
 		if not self.play:
 			self.connection.client.play()
 			self.play=True
+			self.pupd.timer.start()
 			
 		icon.addPixmap(QtGui.QPixmap(":/icons/media-playback-pause.png"))
 		self.status.setPlaying("Playing")
@@ -158,6 +163,7 @@ class Player(QtGui.QMainWindow):
 			icon.addPixmap(QtGui.QPixmap(":/icons/media-playback-start.png"))
 			self.ui.playBtn.setIcon(icon)
 		self.play=False
+		self.pupd.timer.stop()
 
 		self.status.setPlaying("Stopped")
 		self.ui.progressBar.setMaximum(200)
@@ -234,7 +240,6 @@ class ProgressUpdate(QtCore.QThread):
 		
 	def run(self):
 		self.timer.setInterval(1000)
-		self.timer.start()
 			
 
 		
