@@ -24,8 +24,8 @@ class Player(QtGui.QMainWindow):
 		self.connection.start()
 		self.pupd.start()
 		
-	def updateBar(self,newtrack=False):
-		if newtrack:
+	def updateBar(self,force=False):
+		if force:
 			try:
 				pr=str(self.connection.status['time']).split(":")
 			except KeyError:
@@ -36,7 +36,7 @@ class Player(QtGui.QMainWindow):
 			self.ui.progressBar.setValue(int(pr[0]))
 			self.ui.progressBar.setFormat(str(int(pr[0])//60).zfill(2)+":"+str(int(pr[0])%60).zfill(2))
 			
-		elif not newtrack and self.play:
+		elif not force and self.play:
 			#try:
 				self.ui.progressBar.setValue(int(self.ui.progressBar.value())+1)
 				t=self.ui.progressBar.text()
@@ -77,7 +77,12 @@ class Player(QtGui.QMainWindow):
 		#ustawienie slidera z volume (wczesniej sie nie da przez klase StatusInfo
 		self.ui.volSlider.setValue(vol)
 		self.vol=vol
-		self.updateBar(True)
+		if self.play:
+			self.updateBar(True)
+		else:
+			self.ui.progressBar.setMaximum(200)
+			self.ui.progressBar.setValue(0)
+			self.ui.progressBar.setFormat("00:00")
 	def changeSong(self):
 		song=str(self.connection.client.currentsong()['artist'])+"-"+str(self.connection.client.currentsong()['title'])
 		self.status.setTrack(song)
@@ -97,12 +102,18 @@ class Player(QtGui.QMainWindow):
 			self.status.setPlaying("Playing")
 			self.connection.client.play()
 		self.ui.playBtn.setIcon(icon)
+		self.updateBar(True)
+
 	@QtCore.pyqtSlot()
 	def on_nextBtn_clicked(self):
 		self.connection.client.next()
+		self.updateBar(True)
+
 	@QtCore.pyqtSlot()
 	def on_prevBtn_clicked(self):
 		self.connection.client.previous()
+		self.updateBar(True)
+
 	def on_stopBtn_clicked(self):
 		self.connection.client.stop()
 		icon=QtGui.QIcon()
@@ -111,6 +122,8 @@ class Player(QtGui.QMainWindow):
 			self.play=False
 			self.ui.playBtn.setIcon(icon)
 		self.status.setPlaying("Stopped")
+		self.updateBar(True)
+
 
 	@QtCore.pyqtSlot()
 	def on_volImg_clicked(self):
