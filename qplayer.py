@@ -303,7 +303,7 @@ class Player(QtGui.QMainWindow):
 				#	self.selectedLen-=1
 				for i in elements:
 					if i>b:
-						self.connection.client.move(i-iterator,b)
+						self.connection.client.move(i+iterator,b-iterator)
 					else:
 						self.connection.client.move(i,b)
 					iterator-=1
