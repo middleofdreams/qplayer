@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'qplayer.ui'
 #
-# Created: Fri Oct 15 10:59:43 2010
+# Created: Fri Oct  8 11:54:14 2010
 #      by: PyQt4 UI code generator 4.7.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -126,6 +126,7 @@ class Ui_MainWindow(object):
         self.verticalLayout.setObjectName("verticalLayout")
         self.treeWidget = QtGui.QTreeWidget(self.currentplaylist)
         self.treeWidget.setProperty("showDropIndicator", False)
+        self.treeWidget.setDragEnabled(True)
         self.treeWidget.setSelectionMode(QtGui.QAbstractItemView.ExtendedSelection)
         self.treeWidget.setIndentation(0)
         self.treeWidget.setRootIsDecorated(False)

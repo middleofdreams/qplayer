@@ -323,6 +323,9 @@
           <attribute name="headerHighlightSections">
            <bool>false</bool>
           </attribute>
+          <attribute name="headerHighlightSections">
+           <bool>false</bool>
+          </attribute>
           <column>
            <property name="text">
             <string/>

@@ -14,6 +14,11 @@ class Player(QtGui.QMainWindow):
 		self.ui.treeWidget.setColumnHidden(0,True)
 		self.ui.treeWidget.setColumnHidden(4,True)
 		self.ui.treeWidget.setColumnHidden(5,True)
+		self.ui.treeWidget.moveEvent=self.myMoveEvent
+		self.ui.treeWidget.setDragDropMode(QtGui.QAbstractItemView.InternalMove)
+		self.ui.treeWidget.setDragEnabled(True)
+		self.ui.treeWidget.setAcceptDrops(True)
+		
 
 		self.ui.treeWidget_2.setHeaderLabel("Artists / Albums / Tracks")
 		self.firststart=True
@@ -132,6 +137,7 @@ class Player(QtGui.QMainWindow):
 			title,artist,album=self.getTags(track)
 			time=str(int(track['time'])//60).zfill(2)+":"+str(int(track['time'])%60).zfill(2)
 			item=QtGui.QTreeWidgetItem([str(int(track['pos'])+1),artist,title,album,track['file'].split("/")[-1],track['file'],time])
+			item.setFlags(QtCore.Qt.ItemFlags(53))
 			self.ui.treeWidget.addTopLevelItem(item)
 		if not self.connection.manualplaylistupdating:
 			self.highlightTrack()
@@ -268,6 +274,10 @@ class Player(QtGui.QMainWindow):
 		self.play=True
 		self.pupd.timer.start()
 		self.setPlayPauseBtn()
+	
+	def myMoveEvent(self,e):
+		print 'dupa'
+			
 	def on_treeWidget_2_itemActivated(self,e):
 		self.connection.sthchanging=True
 		if e.childCount()==0:
