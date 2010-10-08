@@ -83,6 +83,11 @@ class Player(QtGui.QMainWindow):
 			self.ui.progressBar.setMaximum(200)
 			self.ui.progressBar.setValue(0)
 			self.ui.progressBar.setFormat("00:00")
+		#ladowanie playlisty:
+		for track in self.connection.client.playlistinfo():
+			item=QtGui.QTreeWidgetItem([str(int(track['id'])+1),track['artist'],track['title'],track['album'],track['file'].split("/")[-1],track['file']])
+			self.ui.treeWidget.addTopLevelItem(item)
+		
 	def changeSong(self):
 		song=str(self.connection.client.currentsong()['artist'])+"-"+str(self.connection.client.currentsong()['title'])
 		self.status.setTrack(song)
