@@ -22,6 +22,8 @@ class Player(QtGui.QMainWindow):
 		QtCore.QObject.connect(self.connection,QtCore.SIGNAL("get_status()"), self.loadData)
 		QtCore.QObject.connect(self.pupd.timer,QtCore.SIGNAL("timeout()"), self.updateBar)
 		QtCore.QObject.connect(self.connection,QtCore.SIGNAL("change_song()"), self.changeSong)
+		QtCore.QObject.connect(self.connection,QtCore.SIGNAL("change_playlist()"), self.loadPlaylist)
+		QtCore.QObject.connect(self.connection,QtCore.SIGNAL("playback_error()"), self.playbackError)
 
 		#tu bedzie wiecej podlaczen... zapewne
 		#odpalenie watku
@@ -31,16 +33,19 @@ class Player(QtGui.QMainWindow):
 	def updateBar(self,force=False):
 		if force:
 			try:
-				pr=str(self.connection.client.status()['time']).split(":")
-				pr[1]
+				try:
+					pr=str(self.connection.client.status()['time']).split(":")
+					pr[1]
+				except:
+					#worst line ever?
+					ti=self.connection.client.playlistinfo()[int(self.connection.client.status()['songid'])]
+					pr=[0,ti['time']]
+					
+				self.ui.progressBar.setMaximum(int(pr[1]))
+				self.ui.progressBar.setValue(int(pr[0]))
+				self.ui.progressBar.setFormat(str(int(pr[0])//60).zfill(2)+":"+str(int(pr[0])%60).zfill(2))
 			except:
-				#worst line ever?
-				ti=self.connection.client.playlistinfo()[int(self.connection.client.status()['songid'])]
-				pr=[0,ti['time']]
-			self.ui.progressBar.setMaximum(int(pr[1]))
-			self.ui.progressBar.setValue(int(pr[0]))
-			self.ui.progressBar.setFormat(str(int(pr[0])//60).zfill(2)+":"+str(int(pr[0])%60).zfill(2))
-			
+				pass
 		elif not force and self.play:
 			#try:
 				self.ui.progressBar.setValue(int(self.ui.progressBar.value())+1)
@@ -92,6 +97,10 @@ class Player(QtGui.QMainWindow):
 			self.ui.progressBar.setMaximum(200)
 			self.ui.progressBar.setValue(0)
 			self.ui.progressBar.setFormat("00:00")
+		self.loadPlaylist()
+		
+	def loadPlaylist(self):
+		self.ui.treeWidget.clear()
 		#ladowanie playlisty:
 		for track in self.connection.client.playlistinfo():
 			title,artist,album=self.getTags(track)
@@ -112,18 +121,18 @@ class Player(QtGui.QMainWindow):
 	def on_playBtn_clicked(self):
 		if self.play:
 			self.status.setPlaying("Paused")
-			self.connection.client.pause()
-			self.updateBar(True)		
+			self.connection.pause()
 			self.play=False
 			self.pupd.timer.stop()
+			self.connection.pause()
+			self.updateBar(True)		
+
 
 		else:
-			self.status.setPlaying("Playing")
-			self.connection.client.play()
-			self.updateBar(True)
-
 			self.play=True
 			self.pupd.timer.start()
+			self.connection.play()
+			self.updateBar(True)
 
 		self.setPlayPauseBtn()
 
@@ -132,38 +141,36 @@ class Player(QtGui.QMainWindow):
 	@QtCore.pyqtSlot()
 	def on_nextBtn_clicked(self):
 		if not self.play:
-			self.connection.client.play()
+			self.connection.play()
 			self.play=True
 			self.pupd.timer.start()
 			self.setPlayPauseBtn()
 	
-		self.status.setPlaying("Playing")
-		self.connection.client.next()
+		self.connection.next()
 		self.updateBar(True)
 
 	@QtCore.pyqtSlot()
 	def on_prevBtn_clicked(self):
 
 		if not self.play:
-			self.connection.client.play()
+			self.connection.play()
 			self.play=True
 			self.pupd.timer.start()
 			self.setPlayPauseBtn()
 
-		self.status.setPlaying("Playing")
-		self.connection.client.previous()
+		self.connection.previous()
 		self.updateBar(True)
 
 
 	def on_stopBtn_clicked(self):
-		self.connection.client.stop()
+		self.connection.stop()
 
 		self.play=False
 		self.setPlayPauseBtn()
 
 		self.pupd.timer.stop()
 
-		self.status.setPlaying("Stopped")
+		self.status.setPlaying("Stop")
 		self.ui.progressBar.setMaximum(200)
 		self.ui.progressBar.setValue(0)
 		self.ui.progressBar.setFormat("00:00")
@@ -220,13 +227,13 @@ class Player(QtGui.QMainWindow):
 		self.connection.client.play(int(nr)-1)
 		self.play=True
 		self.pupd.timer.start()
-		self.status.setPlaying("Playing")
 		self.setPlayPauseBtn()
 	
 	def setPlayPauseBtn(self):
 		icon=QtGui.QIcon()
-		print self.play
 		if self.play:
+			self.status.setPlaying("Play")
+
 			icon.addPixmap(QtGui.QPixmap(":/icons/media-playback-pause.png"))
 		else:
 			icon.addPixmap(QtGui.QPixmap(":/icons/media-playback-start.png"))
@@ -239,8 +246,16 @@ class Player(QtGui.QMainWindow):
 			except: title=""
 			try: album=track['album']
 			except: album=""
-			if artist=="" and title=="": title=track['file'].split("/")[-1]
+			if artist=="" and title=="": 
+				try: title=track['file'].split("/")[-1]
+				except: title="--"
 			return title,artist,album
+			
+	def playbackError(self):
+		self.play=False
+		self.pupd.timer.stop()
+		self.setPlayPauseBtn()
+		self.status.setPlaying("Stop")
 class StatusInfo(object):
 	
 	def __init__(self,statusbar,mw,track,time,volume,playing):
