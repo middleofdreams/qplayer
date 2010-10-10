@@ -75,11 +75,15 @@ class Player(QtGui.QMainWindow):
 
 		if  status== 'pause' or status== 'stop':
 			self.play=False
+			print "a"
+			try: 
+				self.pupd.timer.stop()
+				print "aa"
+			except: pass
 
 		else:
 			self.play=True
 			self.pupd.timer.start()
-		self.setPlayPauseBtn()
 
 
 		#pobranie nazwy artysty
@@ -87,6 +91,8 @@ class Player(QtGui.QMainWindow):
 		song=artist+" - "+title
 		self.status=StatusInfo(self.ui.statusbar,self,song,"",str(self.ui.volSlider.value()*5),status.capitalize())
 		self.setWindowTitle(song)
+		self.setPlayPauseBtn()
+
 		#pobranie volume... TODO: ustawienie vol w mpd podzielnego przez 5
 		vol=int(self.connection.status['volume'])//5
 		self.ui.volSlider.setValue(vol)

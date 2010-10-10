@@ -14,11 +14,13 @@ class Connection(QtCore.QThread):
 			except CommandError:
 				exit(1)
 		self.status=self.client.status()
+		print self.status
 		#po pobraniu info wysyla sygnal
 		self.emit(QtCore.SIGNAL("get_status()"),)
 		self.running=True
 		self.currentsong=self.client.currentsong()
 		self.currentplaylist=self.client.playlist()
+		self.state=self.client.status()['state']
 		while self.running:
 			self.sleep(1)
 			self.status=self.client.status()
@@ -28,6 +30,12 @@ class Connection(QtCore.QThread):
 			if self.currentplaylist!=self.client.playlist():
 				self.currentplaylist=self.client.playlist()
 				self.emit(QtCore.SIGNAL("change_playlist()"),)
+			if self.state!=self.client.status()['state']:
+				self.state=self.client.status()['state']
+				print self.status
+				self.emit(QtCore.SIGNAL("get_status()"),)
+
+	
 	def error(self,err_nr):
 		if err_nr==1:
 			self.emit(QtCore.SIGNAL("playback_error()"),)
