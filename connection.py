@@ -1,5 +1,5 @@
 import mpd
-from PyQt4 import QtCore
+from PyQt4 import QtCore,QtGui
 
 class Connection(QtCore.QThread):
 	def __init__(self,parent):
@@ -22,7 +22,8 @@ class Connection(QtCore.QThread):
 		self.currentsong=self.client.currentsong()
 		self.currentplaylist=self.client.playlist()
 		self.state=self.client.status()['state']
-		self.emit(QtCore.SIGNAL("database_fill()"),)
+		
+
 		while self.running:
 			self.sleep(1)
 			self.status=self.client.status()
@@ -66,4 +67,48 @@ class Connection(QtCore.QThread):
 		self.client.next()
 		if self.client.status()['state']!="play": self.error(1)		
 
+
+class LoadDatabase(QtCore.QThread):
+	def __init__(self,parent,listall):
+		super(LoadDatabase,self).__init__(parent)
+		self.listall=listall		
+	def run(self):	
+		self.items=[]
+		artists=[]
+		#albums=[]
+
+		albums={'Unknown artist':{'Unknown album':[]}}
+		for i in self.listall:
+			try:
+				artist=i['artist']
+				track=i['title']
+				if not artist in artists:
+					artists.append(artist)
+					
+				album=i['album']
+				#if not artist in album: albums[artist]=[]
+				try:albums[artist]
+				except KeyError:albums[artist]={}
+				if 	albums[artist].has_key(album):
+					albums[artist][album].append(track)
+				else :
+					albums[artist][album]=[track]
+
+			except: 
+				try:
+					albums['Unknown artist']['Unknown album'].append(i['file'])
+				except: pass
+		#print albums
+		for i in albums:
+			item=QtGui.QTreeWidgetItem([str(i)])
+			for j in albums[i]:
+				child=QtGui.QTreeWidgetItem([str(j)])
+				item.addChild(child)
+				for k in albums[i][j]:
+					grandchild=QtGui.QTreeWidgetItem([str(k)])
+					child.addChild(grandchild)
+		
+			self.items.append(item)
+		#print i,j,k
 	
+		self.emit(QtCore.SIGNAL("add_item()"),)
