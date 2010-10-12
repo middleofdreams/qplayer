@@ -115,7 +115,7 @@ class Player(QtGui.QMainWindow):
 		self.highlightTrack()
 		
 	def changeSong(self):
-		title,artist,album=self.getTags(self.connection.client.currentsong())
+		title,artist,album=self.getTags(self.connection.currentsong)
 		song=artist+" - "+title
 		self.status.setTrack(song)
 		self.updateBar(True)

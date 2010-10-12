@@ -25,16 +25,20 @@ class Connection(QtCore.QThread):
 			self.sleep(1)
 			self.status=self.client.status()
 			if self.currentsong!=self.client.currentsong():
+				#self.sleep(0.1)
 				self.currentsong=self.client.currentsong()
 				self.emit(QtCore.SIGNAL("change_song()"),)
+				self.sleep(1)
 			if self.currentplaylist!=self.client.playlist():
 				self.currentplaylist=self.client.playlist()
 				self.emit(QtCore.SIGNAL("change_playlist()"),)
-			if self.state!=self.client.status()['state']:
-				self.state=self.client.status()['state']
-				print self.status
-				self.emit(QtCore.SIGNAL("get_status()"),)
-
+				self.sleep(1)
+			try:
+				if self.state!=self.client.status()['state']:
+					self.sleep(1)
+					self.state=self.client.status()['state']
+					self.emit(QtCore.SIGNAL("get_status()"),)
+			except:pass
 	
 	def error(self,err_nr):
 		if err_nr==1:
