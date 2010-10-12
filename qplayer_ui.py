@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'qplayer.ui'
 #
-# Created: Fri Oct  8 13:56:45 2010
+# Created: Tue Oct 12 14:04:07 2010
 #      by: PyQt4 UI code generator 4.7.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -139,6 +139,12 @@ class Ui_MainWindow(object):
         self.tabWidget.addTab(self.currentplaylist, "")
         self.musiccollection = QtGui.QWidget()
         self.musiccollection.setObjectName("musiccollection")
+        self.verticalLayout_3 = QtGui.QVBoxLayout(self.musiccollection)
+        self.verticalLayout_3.setObjectName("verticalLayout_3")
+        self.treeWidget_2 = QtGui.QTreeWidget(self.musiccollection)
+        self.treeWidget_2.setObjectName("treeWidget_2")
+        self.treeWidget_2.headerItem().setText(0, "1")
+        self.verticalLayout_3.addWidget(self.treeWidget_2)
         self.tabWidget.addTab(self.musiccollection, "")
         self.verticalLayout_2.addWidget(self.tabWidget)
         MainWindow.setCentralWidget(self.centralwidget)
@@ -152,7 +158,7 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
 
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(1)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):

@@ -17,10 +17,12 @@ class Connection(QtCore.QThread):
 		print self.status
 		#po pobraniu info wysyla sygnal
 		self.emit(QtCore.SIGNAL("get_status()"),)
+		self.sleep(1)
 		self.running=True
 		self.currentsong=self.client.currentsong()
 		self.currentplaylist=self.client.playlist()
 		self.state=self.client.status()['state']
+		self.emit(QtCore.SIGNAL("database_fill()"),)
 		while self.running:
 			self.sleep(1)
 			self.status=self.client.status()
@@ -63,3 +65,5 @@ class Connection(QtCore.QThread):
 	def next(self):
 		self.client.next()
 		if self.client.status()['state']!="play": self.error(1)		
+
+	
