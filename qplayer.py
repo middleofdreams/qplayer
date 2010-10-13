@@ -24,7 +24,6 @@ class Player(QtGui.QMainWindow):
 		QtCore.QObject.connect(self.connection,QtCore.SIGNAL("change_song()"), self.changeSong)
 		QtCore.QObject.connect(self.connection,QtCore.SIGNAL("change_playlist()"), self.loadPlaylist)
 		QtCore.QObject.connect(self.connection,QtCore.SIGNAL("playback_error()"), self.playbackError)
-		QtCore.QObject.connect(self.connection,QtCore.SIGNAL("database_fill()"), self.databaseFill)
 
 		#tu bedzie wiecej podlaczen... zapewne
 		#odpalenie watku
@@ -32,23 +31,10 @@ class Player(QtGui.QMainWindow):
 		self.pupd.start()
 	
 	def databaseFill(self):
-		artists=[]
-		albums={}
-		for i in self.connection.client.listallinfo():
-			try:
-				artist=i['artist']
-				album=i['album']
-				title=i['title']
-				if not album in albums:
-					albums[artist]=[]
-				albums[artist].append(album)	
-			except: pass	
-		for i in albums:
-			item=QtGui.QTreeWidgetItem([str(i)])
-			self.ui.treeWidget_2.addTopLevelItem(item)
-			for j in albums[i]:
-				child=QtGui.QTreeWidgetItem([str(j)])
-				item.addChild(child)		
+			for item in self.loaddtb.items:
+				self.ui.treeWidget_2.addTopLevelItem(item)
+			self.ui.treeWidget_2.sortItems(0,0)
+							
 	def updateBar(self,force=False):
 		if force:
 			try:
@@ -123,6 +109,11 @@ class Player(QtGui.QMainWindow):
 			self.ui.progressBar.setValue(0)
 			self.ui.progressBar.setFormat("00:00")
 		self.loadPlaylist()
+		self.loaddtb=LoadDatabase(self,self.connection.client.listallinfo())
+		QtCore.QObject.connect(self.loaddtb,QtCore.SIGNAL("add_item()"), self.databaseFill)
+		self.loaddtb.start()
+
+
 		
 	def loadPlaylist(self):
 		self.ui.treeWidget.clear()
