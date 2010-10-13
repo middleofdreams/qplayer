@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'qplayer.ui'
 #
-# Created: Tue Oct 12 14:04:07 2010
+# Created: Wed Oct 13 10:16:05 2010
 #      by: PyQt4 UI code generator 4.7.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -142,6 +142,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_3 = QtGui.QVBoxLayout(self.musiccollection)
         self.verticalLayout_3.setObjectName("verticalLayout_3")
         self.treeWidget_2 = QtGui.QTreeWidget(self.musiccollection)
+        self.treeWidget_2.setExpandsOnDoubleClick(False)
         self.treeWidget_2.setObjectName("treeWidget_2")
         self.treeWidget_2.headerItem().setText(0, "1")
         self.verticalLayout_3.addWidget(self.treeWidget_2)

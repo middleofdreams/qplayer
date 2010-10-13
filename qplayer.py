@@ -92,9 +92,11 @@ class Player(QtGui.QMainWindow):
 
 
 		#pobranie nazwy artysty
-		title,artist,album=self.getTags(self.connection.client.currentsong())
+		current=self.connection.client.currentsong()
+		title,artist,album=self.getTags(current)
 		song=artist+" - "+title
-		self.status=StatusInfo(self.ui.statusbar,self,song,"",str(self.ui.volSlider.value()*5),status.capitalize())
+		time=self.getTime(current)
+		self.status=StatusInfo(self.ui.statusbar,song,time,'')
 		self.setWindowTitle(song)
 		self.setPlayPauseBtn()
 
@@ -125,9 +127,11 @@ class Player(QtGui.QMainWindow):
 		self.highlightTrack()
 		
 	def changeSong(self):
-		title,artist,album=self.getTags(self.connection.currentsong)
+		current=self.connection.currentsong
+		title,artist,album=self.getTags(current)
 		song=artist+" - "+title
 		self.status.setTrack(song)
+		self.status.setTime(self.getTime(current))
 		self.updateBar(True)
 		self.highlightTrack()
 		self.setWindowTitle(song)
@@ -256,7 +260,7 @@ class Player(QtGui.QMainWindow):
 						self.connection.client.add(item.child(j).text(1))
 				else:
 					self.connection.client.add(item.text(1))
-				
+		self.status.showMessage(e.text(0)+" added to playlist")		
 				
 	
 	def setPlayPauseBtn(self):
@@ -280,6 +284,15 @@ class Player(QtGui.QMainWindow):
 				try: title=track['file'].split("/")[-1]
 				except: title="--"
 			return title,artist,album
+	def getTime(self,track):
+		try:
+			time=int(track['time'])
+			time=str(time//60).zfill(2)+":"+str(time%60).zfill(2)
+
+		except:
+			time="00:00"
+
+		return time
 			
 	def playbackError(self):
 		self.play=False
@@ -288,18 +301,23 @@ class Player(QtGui.QMainWindow):
 		self.status.setPlaying("Stop")
 class StatusInfo(object):
 	
-	def __init__(self,statusbar,mw,track,time,volume,playing):
+	def __init__(self,statusbar,track,time,playing):
 		self.statusbar=statusbar
-		self.mw=mw
 		self.track=track
 		self.time=time
-		self.volume=volume
 		self.playing=playing
+		self.timer=QtCore.QTimer()
+		self.timer.setInterval(5000)
+		self.decorator="   --==::==--   "
+		QtCore.QObject.connect(self.timer,QtCore.SIGNAL("timeout()"), self.setStatus)
 		self.setStatus()
 	def setStatus(self):
-		status=self.playing+" || "+self.track+" || "+self.time+" || "+self.volume+"%"
+		status=self.decorator+self.playing+" || "+self.track+" || "+self.time+self.decorator
 		self.statusbar.showMessage(status)
-
+	def showMessage(self,message):
+		status=self.decorator+self.playing+" || "+self.track+" || "+self.time+self.decorator
+		self.statusbar.showMessage(status+message) 
+		self.timer.singleShot(5000,self.setStatus)
 	def setTime(self,x):
 		self.time=x
 		self.setStatus()
@@ -312,7 +330,7 @@ class StatusInfo(object):
 	def setPlaying(self,x):
 		self.playing=x
 		self.setStatus()
-
+	
 class ProgressUpdate(QtCore.QThread):
 	def __init__(self,parent):
 		super(ProgressUpdate,self).__init__(parent)		

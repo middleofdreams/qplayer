@@ -389,6 +389,9 @@
        <layout class="QVBoxLayout" name="verticalLayout_3">
         <item>
          <widget class="QTreeWidget" name="treeWidget_2">
+          <property name="expandsOnDoubleClick">
+           <bool>false</bool>
+          </property>
           <column>
            <property name="text">
             <string notr="true">1</string>
