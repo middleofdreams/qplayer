@@ -48,33 +48,38 @@ class Connection(QtCore.QThread):
 
 	def play(self,id=None):
 		if id==None:
-			self.give5tries(self.client.play)
+				self.client.play()
 		else: self.client.play(id)
-		if self.give5tries(self.client.status)['state']!="play": self.error(1)
+		if self.call('status')['state']!="play": self.error(1)
 	def pause(self):
-		self.give5tries(self.client.pause)
-		if self.give5tries(self.client.status)['state']!="pause": self.error(1)		
+		self.client.pause()
+		if self.call('status')['state']!="pause": self.error(1)		
 
 	def stop(self):
-		self.give5tries(self.client.stop)
-		if self.give5tries(self.client.status)!="stop": self.error(1)	
+		self.client.stop()
+		if self.call('status')['state']!="stop": self.error(1)	
 	def previous(self):
-		self.give5tries(self.client.previous)
-		if self.give5tries(self.client.status)!="play": self.error(1)							
+		self.client.previous()
+		if self.call('status')['state']!="play": self.error(1)							
 
 	def next(self):
-		self.give5tries(self.client.next)
-		if self.give5tries(self.client.status)['state']!="play": self.error(1)		
-	def give5tries(self,func):
-		i=0
-		value=None
-		while i<5:
-			try:
-				value=func()
-				i=5
-			except:
-				i+=1
-		return value
+		self.client.next()
+		if self.call('status')['state']!="play": self.error(1)		
+	#def call(self,mpd_cmd,*mpd_args):
+	#	try:
+	#		retval=getattr(self.client,mpd_cmd)(*mpd_args)
+	#	except:
+	#		if not mpd_cmd in ['disconnect','lsinfo','listplaylists']:
+	#			if not suppress_errors:
+	#				print 
+	#		if mpd_cmd in ['lsinfo','list']
+	def call(self,cmd):
+		try:
+			return getattr(self.client,cmd)()
+		except:
+			print "Unknown error in call function"
+			return None		
+
 class LoadDatabase(QtCore.QThread):
 	def __init__(self,parent,listall):
 		super(LoadDatabase,self).__init__(parent)
