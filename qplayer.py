@@ -11,6 +11,8 @@ class Player(QtGui.QMainWindow):
 		self.ui.setupUi(self)
 		self.ui.treeWidget.setColumnWidth(0,17)
 		self.ui.treeWidget.setHeaderLabel("#")
+		self.ui.treeWidget_2.setHeaderLabel("Artists / Albums / Tracks")
+
 		self.mute=False
 
 		self.play=False
@@ -80,10 +82,8 @@ class Player(QtGui.QMainWindow):
 
 		if  status== 'pause' or status== 'stop':
 			self.play=False
-			print "a"
 			try: 
 				self.pupd.timer.stop()
-				print "aa"
 			except: pass
 
 		else:
@@ -112,7 +112,6 @@ class Player(QtGui.QMainWindow):
 		self.loaddtb=LoadDatabase(self,self.connection.client.listallinfo())
 		QtCore.QObject.connect(self.loaddtb,QtCore.SIGNAL("add_item()"), self.databaseFill)
 		self.loaddtb.start()
-
 
 		
 	def loadPlaylist(self):
@@ -244,6 +243,20 @@ class Player(QtGui.QMainWindow):
 		self.play=True
 		self.pupd.timer.start()
 		self.setPlayPauseBtn()
+	def on_treeWidget_2_itemActivated(self,e):
+		if e.childCount()==0:
+			filename=e.text(1)
+			self.connection.client.add(filename)
+		else:
+			for i in range(e.childCount()):
+				item=e.child(i)
+				if not e.parent():
+					for j in range(item.childCount()):
+						self.connection.client.add(item.child(j).text(1))
+				else:
+					self.connection.client.add(item.text(1))
+				
+				
 	
 	def setPlayPauseBtn(self):
 		icon=QtGui.QIcon()

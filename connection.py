@@ -14,7 +14,6 @@ class Connection(QtCore.QThread):
 			except CommandError:
 				exit(1)
 		self.status=self.client.status()
-		print self.status
 		#po pobraniu info wysyla sygnal
 		self.emit(QtCore.SIGNAL("get_status()"),)
 		self.sleep(1)
@@ -77,23 +76,23 @@ class LoadDatabase(QtCore.QThread):
 		artists=[]
 		#albums=[]
 		albums={}
-		#albums={'Unknown artist':{'Unknown album':[]}}
+		#albums={'Unknown artist':{'Unknown album':[]}
 		for i in self.listall:
 			try:
 				artist=i['artist']
 			except:
-				artist="Unknown artist"
+				artist=".Unknown artist"
 			try:
-				track=i['title']
+				track=[i['title'],i['file']]
 			except:
 				try:
-					track=i['file']
+					track=[i['file'],i['file']]
 				except:
 					track="$$5dir5$$"	
 			try:	
 				album=i['album']
 			except: 
-				album="Unknown album"
+				album=".Unknown album"
 			if track!="$$5dir5$$":
 				#if not artist in album: albums[artist]=[]
 				try:albums[artist]
@@ -111,7 +110,7 @@ class LoadDatabase(QtCore.QThread):
 				child=QtGui.QTreeWidgetItem([str(j)])
 				item.addChild(child)
 				for k in albums[i][j]:
-					grandchild=QtGui.QTreeWidgetItem([str(k)])
+					grandchild=QtGui.QTreeWidgetItem(k)
 					child.addChild(grandchild)
 		
 			self.items.append(item)
