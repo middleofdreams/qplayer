@@ -13,32 +13,32 @@ class Connection(QtCore.QThread):
 				client.password(PASSWORD)
 			except CommandError:
 				exit(1)
-		self.status=self.client.status()
+		self.status=self.call('status')
 		#po pobraniu info wysyla sygnal
 		self.emit(QtCore.SIGNAL("get_status()"),)
 		self.sleep(1)
 		self.running=True
-		self.currentsong=self.client.currentsong()
-		self.currentplaylist=self.client.playlist()
-		self.state=self.client.status()['state']
+		self.currentsong=self.call('currentsong')
+		self.currentplaylist=self.call('playlist')
+		self.state=self.call('status')['state']
 		
 
 		while self.running:
 			self.sleep(1)
-			self.status=self.client.status()
-			if self.currentsong!=self.client.currentsong():
+			self.status=self.call('status')
+			if self.currentsong!=self.call('currentsong'):
 				#self.sleep(0.1)
-				self.currentsong=self.client.currentsong()
+				self.currentsong=self.call('currentsong')
 				self.emit(QtCore.SIGNAL("change_song()"),)
-				self.sleep(1)
-			if self.currentplaylist!=self.client.playlist():
-				self.currentplaylist=self.client.playlist()
+				#self.sleep(1)
+			if self.currentplaylist!=self.call('playlist'):
+				self.currentplaylist=self.call('playlist')
 				self.emit(QtCore.SIGNAL("change_playlist()"),)
-				self.sleep(1)
+				#self.sleep(1)
 			try:
-				if self.state!=self.client.status()['state']:
-					self.sleep(1)
-					self.state=self.client.status()['state']
+				if self.state!=self.call('status')['state']:
+					#self.sleep(1)
+					self.state=self.call('status')['state']
 					self.emit(QtCore.SIGNAL("get_status()"),)
 			except:pass
 	
@@ -48,37 +48,41 @@ class Connection(QtCore.QThread):
 
 	def play(self,id=None):
 		if id==None:
-			self.give5tries(self.client.play)
-		else: self.client.play(id)
-		if self.give5tries(self.client.status)['state']!="play": self.error(1)
-	def pause(self):
-		self.give5tries(self.client.pause)
-		if self.give5tries(self.client.status)['state']!="pause": self.error(1)		
+			self.call('play')
+		else: self.call('play',id)
+		if self.call('status')['state']!="play": self.error(1)
+	def pause(self,*arg):
+		self.call('pause',*arg)
+		if self.call('status')['state']!="pause": self.error(1)		
 
 	def stop(self):
-		self.give5tries(self.client.stop)
-		if self.give5tries(self.client.status)!="stop": self.error(1)	
+		self.call('stop')
+		if self.call('status')['state']!="stop": self.error(1)	
 	def previous(self):
-		self.give5tries(self.client.previous)
-		if self.give5tries(self.client.status)!="play": self.error(1)							
+		self.call('previous')
+		if self.call('status')['state']!="play": self.error(1)							
 
 	def next(self):
-		self.give5tries(self.client.next)
-		if self.give5tries(self.client.status)['state']!="play": self.error(1)		
-	def give5tries(self,func):
-		i=0
-		value=None
-		while i<5:
+		self.call('next')
+		if self.call('status')['state']!="play": self.error(1)		
+	def call(self,cmd,*args):
+		if cmd=='status':
+			value=getattr(self.client,cmd)(*args)
+			if value and 'state' in value:
+				return value
+			else: 
+				return {'state':'processing'}
+		else:
 			try:
-				value=func()
-				i=5
-			except:
-				i+=1
-		return value
+				value=getattr(self.client,cmd)(*args)
+			except: 
+					value=None
+			return value
 class LoadDatabase(QtCore.QThread):
 	def __init__(self,parent,listall):
 		super(LoadDatabase,self).__init__(parent)
-		self.listall=listall		
+		self.listall=listall
+		self.parent=parent		
 	def run(self):	
 		self.items=[]
 		artists=[]
