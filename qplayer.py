@@ -37,10 +37,8 @@ class Player(QtGui.QMainWindow):
 		for i in self.connection.client.listallinfo():
 			try:
 				artist=i['artist']
-				if not artist in artists:
-					artists.append(artist)
-					
 				album=i['album']
+				title=i['title']
 				if not album in albums:
 					albums[artist]=[]
 				albums[artist].append(album)	
