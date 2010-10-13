@@ -12,7 +12,7 @@ class Player(QtGui.QMainWindow):
 		self.ui.treeWidget.setColumnWidth(0,17)
 		self.ui.treeWidget.setHeaderLabel("#")
 		self.ui.treeWidget_2.setHeaderLabel("Artists / Albums / Tracks")
-
+		self.firststart=True
 		self.mute=False
 
 		self.play=False
@@ -109,10 +109,11 @@ class Player(QtGui.QMainWindow):
 			self.ui.progressBar.setValue(0)
 			self.ui.progressBar.setFormat("00:00")
 		self.loadPlaylist()
-		self.loaddtb=LoadDatabase(self,self.connection.client.listallinfo())
-		QtCore.QObject.connect(self.loaddtb,QtCore.SIGNAL("add_item()"), self.databaseFill)
-		self.loaddtb.start()
-
+		if self.firststart:
+			self.loaddtb=LoadDatabase(self,self.connection.client.listallinfo())
+			QtCore.QObject.connect(self.loaddtb,QtCore.SIGNAL("add_item()"), self.databaseFill)
+			self.loaddtb.start()
+		self.firststart=False
 		
 	def loadPlaylist(self):
 		self.ui.treeWidget.clear()
