@@ -163,7 +163,7 @@
        <item>
         <widget class="QPushButton" name="nextBtn">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -202,20 +202,26 @@
         </widget>
        </item>
        <item>
-        <spacer name="horizontalSpacer">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
+        <widget class="QProgressBar" name="progressBar">
+         <property name="maximumSize">
           <size>
-           <width>40</width>
-           <height>20</height>
+           <width>2000000</width>
+           <height>13</height>
           </size>
          </property>
-        </spacer>
+         <property name="value">
+          <number>24</number>
+         </property>
+        </widget>
        </item>
        <item>
         <widget class="QSlider" name="volSlider">
+         <property name="maximumSize">
+          <size>
+           <width>60</width>
+           <height>16777215</height>
+          </size>
+         </property>
          <property name="maximum">
           <number>20</number>
          </property>
@@ -295,19 +301,6 @@
        <property name="bottomMargin">
         <number>0</number>
        </property>
-       <item>
-        <widget class="QProgressBar" name="progressBar">
-         <property name="maximumSize">
-          <size>
-           <width>2000000</width>
-           <height>13</height>
-          </size>
-         </property>
-         <property name="value">
-          <number>24</number>
-         </property>
-        </widget>
-       </item>
       </layout>
      </widget>
     </item>

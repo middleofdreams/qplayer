@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'qplayer.ui'
 #
-# Created: Wed Oct 13 10:16:05 2010
+# Created: Wed Oct 13 11:37:56 2010
 #      by: PyQt4 UI code generator 4.7.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -68,7 +68,7 @@ class Ui_MainWindow(object):
         self.stopBtn.setObjectName("stopBtn")
         self.horizontalLayout.addWidget(self.stopBtn)
         self.nextBtn = QtGui.QPushButton(self.frame)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Ignored, QtGui.QSizePolicy.Ignored)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.nextBtn.sizePolicy().hasHeightForWidth())
@@ -84,9 +84,13 @@ class Ui_MainWindow(object):
         self.nextBtn.setFlat(True)
         self.nextBtn.setObjectName("nextBtn")
         self.horizontalLayout.addWidget(self.nextBtn)
-        spacerItem = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
-        self.horizontalLayout.addItem(spacerItem)
+        self.progressBar = QtGui.QProgressBar(self.frame)
+        self.progressBar.setMaximumSize(QtCore.QSize(2000000, 13))
+        self.progressBar.setProperty("value", 24)
+        self.progressBar.setObjectName("progressBar")
+        self.horizontalLayout.addWidget(self.progressBar)
         self.volSlider = QtGui.QSlider(self.frame)
+        self.volSlider.setMaximumSize(QtCore.QSize(60, 16777215))
         self.volSlider.setMaximum(20)
         self.volSlider.setSingleStep(1)
         self.volSlider.setPageStep(2)
@@ -117,11 +121,6 @@ class Ui_MainWindow(object):
         self.horizontalLayout_2 = QtGui.QHBoxLayout(self.frame_2)
         self.horizontalLayout_2.setContentsMargins(-1, 0, -1, 0)
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
-        self.progressBar = QtGui.QProgressBar(self.frame_2)
-        self.progressBar.setMaximumSize(QtCore.QSize(2000000, 13))
-        self.progressBar.setProperty("value", 24)
-        self.progressBar.setObjectName("progressBar")
-        self.horizontalLayout_2.addWidget(self.progressBar)
         self.verticalLayout_2.addWidget(self.frame_2)
         self.tabWidget = QtGui.QTabWidget(self.centralwidget)
         self.tabWidget.setObjectName("tabWidget")
