@@ -48,25 +48,33 @@ class Connection(QtCore.QThread):
 
 	def play(self,id=None):
 		if id==None:
-			self.client.play()
+			self.give5tries(self.client.play)
 		else: self.client.play(id)
-		if self.client.status()['state']!="play": self.error(1)
+		if self.give5tries(self.client.status)['state']!="play": self.error(1)
 	def pause(self):
-		self.client.pause()
-		if self.client.status()['state']!="pause": self.error(1)		
+		self.give5tries(self.client.pause)
+		if self.give5tries(self.client.status)['state']!="pause": self.error(1)		
 
 	def stop(self):
-		self.client.stop()
-		if self.client.status()['state']!="stop": self.error(1)	
+		self.give5tries(self.client.stop)
+		if self.give5tries(self.client.status)!="stop": self.error(1)	
 	def previous(self):
-		self.client.previous()
-		if self.client.status()['state']!="play": self.error(1)							
+		self.give5tries(self.client.previous)
+		if self.give5tries(self.client.status)!="play": self.error(1)							
 
 	def next(self):
-		self.client.next()
-		if self.client.status()['state']!="play": self.error(1)		
-
-
+		self.give5tries(self.client.next)
+		if self.give5tries(self.client.status)['state']!="play": self.error(1)		
+	def give5tries(self,func):
+		i=0
+		value=None
+		while i<5:
+			try:
+				value=func()
+				i=5
+			except:
+				i+=1
+		return value
 class LoadDatabase(QtCore.QThread):
 	def __init__(self,parent,listall):
 		super(LoadDatabase,self).__init__(parent)
