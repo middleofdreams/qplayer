@@ -40,12 +40,14 @@ class Player(QtGui.QMainWindow):
 	def updateBar(self,force=False):
 		if force:
 			try:
+				status=self.connection.call('status')
 				try:
-					pr=str(self.connection.client.status()['time']).split(":")
+					pr=str(status['time']).split(":")
 					pr[1]
 				except:
 					#worst line ever?
-					ti=self.connection.client.playlistinfo()[int(self.connection.client.status()['songid'])]
+					
+					ti=self.connection.call('playlistinfo')[int(status['songid'])]
 					pr=[0,ti['time']]
 					
 				self.ui.progressBar.setMaximum(int(pr[1]))
@@ -76,23 +78,24 @@ class Player(QtGui.QMainWindow):
 	def loadData(self):
 		'''funkcja do ladowania informacji na starcie programu'''
 		#pobranie statusu i ustawienie ikonki
-		status=str(self.connection.status['state'])
+		status=self.connection.call('status')
+		state=str(status['state'])
 	
 
 
-		if  status== 'pause' or status== 'stop':
+		if  state== 'pause' or state== 'stop':
 			self.play=False
 			try: 
 				self.pupd.timer.stop()
 			except: pass
 
-		else:
+		elif not state=='processing':
 			self.play=True
 			self.pupd.timer.start()
 
 
 		#pobranie nazwy artysty
-		current=self.connection.client.currentsong()
+		current=self.connection.call('currentsong')
 		title,artist,album=self.getTags(current)
 		song=artist+" - "+title
 		time=self.getTime(current)
@@ -101,7 +104,7 @@ class Player(QtGui.QMainWindow):
 		self.setPlayPauseBtn()
 
 		#pobranie volume... TODO: ustawienie vol w mpd podzielnego przez 5
-		vol=int(self.connection.status['volume'])//5
+		vol=int(status['volume'])//5
 		self.ui.volSlider.setValue(vol)
 		self.getVolIcon()
 		if self.play:
@@ -112,7 +115,7 @@ class Player(QtGui.QMainWindow):
 			self.ui.progressBar.setFormat("00:00")
 		self.loadPlaylist()
 		if self.firststart:
-			self.loaddtb=LoadDatabase(self,self.connection.client.listallinfo())
+			self.loaddtb=LoadDatabase(self,self.connection.call('listallinfo'))
 			QtCore.QObject.connect(self.loaddtb,QtCore.SIGNAL("add_item()"), self.databaseFill)
 			self.loaddtb.start()
 		self.firststart=False
@@ -120,7 +123,7 @@ class Player(QtGui.QMainWindow):
 	def loadPlaylist(self):
 		self.ui.treeWidget.clear()
 		#ladowanie playlisty:
-		for track in self.connection.client.playlistinfo():
+		for track in self.connection.call('playlistinfo'):
 			title,artist,album=self.getTags(track)
 			item=QtGui.QTreeWidgetItem([" ",str(int(track['pos'])+1),artist,title,album,track['file'].split("/")[-1],track['file']])
 			self.ui.treeWidget.addTopLevelItem(item)
@@ -141,10 +144,10 @@ class Player(QtGui.QMainWindow):
 	def on_playBtn_clicked(self):
 		if self.play:
 			self.status.setPlaying("Paused")
-			self.connection.pause()
 			self.play=False
+
+			self.connection.pause(1)
 			self.pupd.timer.stop()
-			self.connection.pause()
 			self.updateBar(True)		
 
 
@@ -204,19 +207,19 @@ class Player(QtGui.QMainWindow):
 			self.getVolIcon()
 			self.mute=False
 			vol=self.vol*5
-			self.connection.client.setvol(vol)
+			self.connection.call('setvol',vol)
 		else:
 			icon.addPixmap(QtGui.QPixmap(":/icons/audio-volume-muted.png"))
 			self.mute=True
 			self.vol=int(self.connection.status['volume'])//5
-			self.connection.client.setvol(0)
+			self.connection.call('setvol',0)
 			
 			self.ui.volImg.setIcon(icon)
 	def on_volSlider_valueChanged(self,a):
 		if not self.mute: self.getVolIcon()
 		volume=str(self.ui.volSlider.value()*5)
 		self.ui.volSlider.setToolTip("Volume:"+volume)
-		self.connection.client.setvol(volume)
+		self.connection.call('setvol',volume)
 		self.status.setVolume(volume)
 		self.vol=volume
 		
@@ -231,7 +234,7 @@ class Player(QtGui.QMainWindow):
 		self.ui.volImg.setIcon(icon)
 	def highlightTrack(self):
 		try:
-			item=self.ui.treeWidget.topLevelItem(int(self.connection.client.currentsong()['pos']))
+			item=self.ui.treeWidget.topLevelItem(int(self.connection.call('currentsong')['pos']))
 			item.setText(0,"#")
 
 		except: item=None
@@ -244,22 +247,22 @@ class Player(QtGui.QMainWindow):
 
 	def on_treeWidget_itemActivated(self,e):
 		nr=e.text(1)
-		self.connection.client.play(int(nr)-1)
+		self.connection.play(int(nr)-1)
 		self.play=True
 		self.pupd.timer.start()
 		self.setPlayPauseBtn()
 	def on_treeWidget_2_itemActivated(self,e):
 		if e.childCount()==0:
 			filename=e.text(1)
-			self.connection.client.add(filename)
+			self.connection.call('add',filename)
 		else:
 			for i in range(e.childCount()):
 				item=e.child(i)
 				if not e.parent():
 					for j in range(item.childCount()):
-						self.connection.client.add(item.child(j).text(1))
+						self.connection.call('add',item.child(j).text(1))
 				else:
-					self.connection.client.add(item.text(1))
+					self.connection.call('add',item.text(1))
 		self.status.showMessage(e.text(0)+" added to playlist")		
 				
 	
