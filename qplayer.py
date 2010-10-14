@@ -80,10 +80,9 @@ class Player(QtGui.QMainWindow):
 		#pobranie statusu i ustawienie ikonki
 		status=self.connection.call('status')
 		state=str(status['state'])
-	
-
 
 		if  state== 'pause' or state== 'stop':
+
 			self.play=False
 			try: 
 				self.pupd.timer.stop()
@@ -116,6 +115,7 @@ class Player(QtGui.QMainWindow):
 		self.loadPlaylist()
 		if self.firststart:
 			self.loaddtb=LoadDatabase(self,self.connection.call('listallinfo'))
+
 			QtCore.QObject.connect(self.loaddtb,QtCore.SIGNAL("add_item()"), self.databaseFill)
 			self.loaddtb.start()
 		self.firststart=False
@@ -132,6 +132,7 @@ class Player(QtGui.QMainWindow):
 	def changeSong(self):
 		current=self.connection.currentsong
 		title,artist,album=self.getTags(current)
+
 		song=artist+" - "+title
 		self.status.setTrack(song)
 		self.status.setTime(self.getTime(current))
@@ -145,9 +146,8 @@ class Player(QtGui.QMainWindow):
 		if self.play:
 			self.status.setPlaying("Paused")
 			self.play=False
-
-			self.connection.pause(1)
 			self.pupd.timer.stop()
+			self.connection.pause()
 			self.updateBar(True)		
 
 
@@ -190,7 +190,6 @@ class Player(QtGui.QMainWindow):
 
 		self.play=False
 		self.setPlayPauseBtn()
-
 		self.pupd.timer.stop()
 
 		self.status.setPlaying("Stop")
@@ -264,13 +263,24 @@ class Player(QtGui.QMainWindow):
 				else:
 					self.connection.call('add',item.text(1))
 		self.status.showMessage(e.text(0)+" added to playlist")		
-				
+		
+	def keyPressEvent(self,event):
+		if self.ui.treeWidget.selectedItems()!=[]:
+			if event.key() == QtCore.Qt.Key_Escape:
+				deletionlist=[]
+				for i in self.ui.treeWidget.selectedItems():
+					deletionlist.append(int(i.text(1))-1)
+				deletionlist.reverse()
+				for i in deletionlist:
+					self.connection.call('delete',i) 
+		
+		
+	
 	
 	def setPlayPauseBtn(self):
 		icon=QtGui.QIcon()
 		if self.play:
 			self.status.setPlaying("Play")
-
 			icon.addPixmap(QtGui.QPixmap(":/icons/media-playback-pause.png"))
 		else:
 			icon.addPixmap(QtGui.QPixmap(":/icons/media-playback-start.png"))
@@ -305,6 +315,7 @@ class Player(QtGui.QMainWindow):
 class StatusInfo(object):
 	
 	def __init__(self,statusbar,track,time,playing):
+
 		self.statusbar=statusbar
 		self.track=track
 		self.time=time
@@ -321,6 +332,7 @@ class StatusInfo(object):
 		status=self.decorator+self.playing+" || "+self.track+" || "+self.time+self.decorator
 		self.statusbar.showMessage(status+message) 
 		self.timer.singleShot(5000,self.setStatus)
+
 	def setTime(self,x):
 		self.time=x
 		self.setStatus()

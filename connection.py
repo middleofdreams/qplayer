@@ -39,6 +39,7 @@ class Connection(QtCore.QThread):
 				if self.state!=self.call('status')['state']:
 					#self.sleep(1)
 					self.state=self.call('status')['state']
+
 					self.emit(QtCore.SIGNAL("get_status()"),)
 			except:pass
 	
@@ -84,6 +85,7 @@ class LoadDatabase(QtCore.QThread):
 		super(LoadDatabase,self).__init__(parent)
 		self.listall=listall
 		self.parent=parent		
+
 	def run(self):	
 		self.items=[]
 		artists=[]

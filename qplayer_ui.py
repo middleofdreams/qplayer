@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'qplayer.ui'
 #
-# Created: Wed Oct 13 11:37:56 2010
+# Created: Thu Oct 14 10:21:48 2010
 #      by: PyQt4 UI code generator 4.7.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -130,6 +130,7 @@ class Ui_MainWindow(object):
         self.verticalLayout.setObjectName("verticalLayout")
         self.treeWidget = QtGui.QTreeWidget(self.currentplaylist)
         self.treeWidget.setProperty("showDropIndicator", False)
+        self.treeWidget.setSelectionMode(QtGui.QAbstractItemView.ExtendedSelection)
         self.treeWidget.setIndentation(0)
         self.treeWidget.setRootIsDecorated(False)
         self.treeWidget.setObjectName("treeWidget")
@@ -158,7 +159,7 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
 
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(1)
+        self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):

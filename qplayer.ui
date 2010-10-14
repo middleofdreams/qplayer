@@ -307,7 +307,7 @@
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="currentplaylist">
        <attribute name="title">
@@ -318,6 +318,9 @@
          <widget class="QTreeWidget" name="treeWidget">
           <property name="showDropIndicator" stdset="0">
            <bool>false</bool>
+          </property>
+          <property name="selectionMode">
+           <enum>QAbstractItemView::ExtendedSelection</enum>
           </property>
           <property name="indentation">
            <number>0</number>
