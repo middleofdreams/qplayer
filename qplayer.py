@@ -133,10 +133,15 @@ class Player(QtGui.QMainWindow):
 			time=str(int(track['time'])//60).zfill(2)+":"+str(int(track['time'])%60).zfill(2)
 			item=QtGui.QTreeWidgetItem([str(int(track['pos'])+1),artist,title,album,track['file'].split("/")[-1],track['file'],time])
 			self.ui.treeWidget.addTopLevelItem(item)
-		self.highlightTrack()
-		item=self.ui.treeWidget.topLevelItem(int(self.connection.currentsong['pos']))
-		self.ui.treeWidget.scrollToItem(item,3)
-		
+		if not self.connection.manualplaylistupdating:
+			self.highlightTrack()
+		else:
+			self.connection.manualplaylistupdating=False 
+
+		try:
+			item=self.ui.treeWidget.topLevelItem(int(self.connection.currentsong['pos']))
+			self.ui.treeWidget.scrollToItem(item,3)
+		except:pass
 	def changeSong(self):
 		current=self.connection.currentsong
 		title,artist,album=self.getTags(current)
@@ -250,7 +255,7 @@ class Player(QtGui.QMainWindow):
 		except: item=None
 	
 		try:
-			
+		
 			for i in range(self.plItem.columnCount()):
 				font=self.plItem.font(i)
 				font.setBold(False)
@@ -289,6 +294,8 @@ class Player(QtGui.QMainWindow):
 					deletionlist.append(int(i.text(0))-1)
 					del(i)
 				deletionlist.reverse()
+				if int(self.connection.currentsong['pos'])+1 in deletionlist:	
+					self.connection.manualplaylistupdating=True
 				self.connection.sthchanging=True
 				for i in deletionlist:
 					self.connection.call('delete',i) 
