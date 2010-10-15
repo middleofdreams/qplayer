@@ -13,6 +13,13 @@
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="res.qrc">
+    <normaloff>:/icons/media-playback-start.png</normaloff>:/icons/media-playback-start.png</iconset>
+  </property>
+  <property name="tabShape">
+   <enum>QTabWidget::Triangular</enum>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout_2">
     <property name="spacing">
@@ -344,6 +351,11 @@
           <column>
            <property name="text">
             <string>File path</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Lenght</string>
            </property>
           </column>
          </widget>

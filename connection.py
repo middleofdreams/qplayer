@@ -126,7 +126,7 @@ class LoadDatabase(QtCore.QThread):
 				album=i['album']
 			except: 
 				album="Unknown album"
-			if track!=["$$5dir5$$","0"]:
+			if track!=["$$5dir5$$","00"]:
 				#if not artist in album: albums[artist]=[]
 				try:albums[artist]
 				except KeyError:albums[artist]={}

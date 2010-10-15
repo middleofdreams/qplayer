@@ -12,6 +12,8 @@ class Player(QtGui.QMainWindow):
 		self.ui.treeWidget.setColumnWidth(0,23)
 		self.ui.treeWidget.setHeaderLabel(" ")
 		self.ui.treeWidget.setColumnHidden(0,True)
+		self.ui.treeWidget.setColumnHidden(4,True)
+		self.ui.treeWidget.setColumnHidden(5,True)
 
 		self.ui.treeWidget_2.setHeaderLabel("Artists / Albums / Tracks")
 		self.firststart=True
@@ -128,9 +130,12 @@ class Player(QtGui.QMainWindow):
 		#ladowanie playlisty:
 		for track in self.connection.playlistinfo:
 			title,artist,album=self.getTags(track)
-			item=QtGui.QTreeWidgetItem([str(int(track['pos'])+1),artist,title,album,track['file'].split("/")[-1],track['file']])
+			time=str(int(track['time'])//60).zfill(2)+":"+str(int(track['time'])%60).zfill(2)
+			item=QtGui.QTreeWidgetItem([str(int(track['pos'])+1),artist,title,album,track['file'].split("/")[-1],track['file'],time])
 			self.ui.treeWidget.addTopLevelItem(item)
 		self.highlightTrack()
+		item=self.ui.treeWidget.topLevelItem(int(self.connection.currentsong['pos']))
+		self.ui.treeWidget.scrollToItem(item,3)
 		
 	def changeSong(self):
 		current=self.connection.currentsong
