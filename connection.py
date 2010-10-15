@@ -1,6 +1,15 @@
 import mpd
 from PyQt4 import QtCore,QtGui
 
+def getTrackNr(track):
+	try: nr=track['track']
+	except: nr="0"
+	while "/" in nr:
+		nr=nr[:-1]
+		#print nr
+	return nr.zfill(2)
+
+
 class Connection(QtCore.QThread):
 	def __init__(self,parent):
 		super(Connection,self).__init__(parent)		
@@ -103,19 +112,21 @@ class LoadDatabase(QtCore.QThread):
 			try:
 				artist=i['artist']
 			except:
-				artist=".Unknown artist"
+				artist="Unknown artist"
 			try:
 				track=[i['title'],i['file']]
 			except:
 				try:
 					track=[i['file'],i['file']]
 				except:
-					track="$$5dir5$$"	
+					track=["$$5dir5$$"]	
+			track.append(getTrackNr(i))
+			if track[-1]!="00": track[0]=track[2]+": "+track[0]
 			try:	
 				album=i['album']
 			except: 
-				album=".Unknown album"
-			if track!="$$5dir5$$":
+				album="Unknown album"
+			if track!=["$$5dir5$$","0"]:
 				#if not artist in album: albums[artist]=[]
 				try:albums[artist]
 				except KeyError:albums[artist]={}
@@ -123,8 +134,7 @@ class LoadDatabase(QtCore.QThread):
 					albums[artist][album].append(track)
 				else :
 					albums[artist][album]=[track]
-
-
+		#albums.sort()
 		#print albums
 		for i in albums:
 			item=QtGui.QTreeWidgetItem([str(i)])
@@ -134,8 +144,9 @@ class LoadDatabase(QtCore.QThread):
 				for k in albums[i][j]:
 					grandchild=QtGui.QTreeWidgetItem(k)
 					child.addChild(grandchild)
-		
+				#child.sortChildren(2,0)
 			self.items.append(item)
 		#print i,j,k
 	
 		self.emit(QtCore.SIGNAL("add_item()"),)
+

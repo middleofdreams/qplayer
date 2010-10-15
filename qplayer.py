@@ -33,6 +33,7 @@ class Player(QtGui.QMainWindow):
 		self.pupd.start()
 	
 	def databaseFill(self):
+		
 			for item in self.loaddtb.items:
 				self.ui.treeWidget_2.addTopLevelItem(item)
 			self.ui.treeWidget_2.sortItems(0,0)
