@@ -40,14 +40,14 @@ class Player(QtGui.QMainWindow):
 	def updateBar(self,force=False):
 		if force:
 			try:
-				status=self.connection.call('status')
+				status=self.connection.status
 				try:
 					pr=str(status['time']).split(":")
 					pr[1]
 				except:
 					#worst line ever?
 					
-					ti=self.connection.call('playlistinfo')[int(status['songid'])]
+					ti=self.connection.playlistinfo[int(status['songid'])]
 					pr=[0,ti['time']]
 					
 				self.ui.progressBar.setMaximum(int(pr[1]))
@@ -78,7 +78,7 @@ class Player(QtGui.QMainWindow):
 	def loadData(self):
 		'''funkcja do ladowania informacji na starcie programu'''
 		#pobranie statusu i ustawienie ikonki
-		status=self.connection.call('status')
+		status=self.connection.status
 		state=str(status['state'])
 
 		if  state== 'pause' or state== 'stop':
@@ -94,7 +94,7 @@ class Player(QtGui.QMainWindow):
 
 
 		#pobranie nazwy artysty
-		current=self.connection.call('currentsong')
+		current=self.connection.currentsong
 		title,artist,album=self.getTags(current)
 		song=artist+" - "+title
 		time=self.getTime(current)
@@ -120,10 +120,10 @@ class Player(QtGui.QMainWindow):
 			self.loaddtb.start()
 		self.firststart=False
 		
-	def loadPlaylist(self):
+	def loadPlaylist(self,manual=False):
 		self.ui.treeWidget.clear()
 		#ladowanie playlisty:
-		for track in self.connection.call('playlistinfo'):
+		for track in self.connection.playlistinfo:
 			title,artist,album=self.getTags(track)
 			item=QtGui.QTreeWidgetItem([" ",str(int(track['pos'])+1),artist,title,album,track['file'].split("/")[-1],track['file']])
 			self.ui.treeWidget.addTopLevelItem(item)
@@ -233,7 +233,7 @@ class Player(QtGui.QMainWindow):
 		self.ui.volImg.setIcon(icon)
 	def highlightTrack(self):
 		try:
-			item=self.ui.treeWidget.topLevelItem(int(self.connection.call('currentsong')['pos']))
+			item=self.ui.treeWidget.topLevelItem(int(self.connection.currentsong['pos']))
 			item.setText(0,"#")
 
 		except: item=None
@@ -251,6 +251,7 @@ class Player(QtGui.QMainWindow):
 		self.pupd.timer.start()
 		self.setPlayPauseBtn()
 	def on_treeWidget_2_itemActivated(self,e):
+		self.connection.sthchanging=True
 		if e.childCount()==0:
 			filename=e.text(1)
 			self.connection.call('add',filename)
@@ -262,17 +263,22 @@ class Player(QtGui.QMainWindow):
 						self.connection.call('add',item.child(j).text(1))
 				else:
 					self.connection.call('add',item.text(1))
-		self.status.showMessage(e.text(0)+" added to playlist")		
-		
+		self.status.showMessage(e.text(0)+" added to playlist")
+		self.connection.manualPlaylistUpdate()
+
+	
 	def keyPressEvent(self,event):
 		if self.ui.treeWidget.selectedItems()!=[]:
 			if event.key() == QtCore.Qt.Key_Escape:
 				deletionlist=[]
 				for i in self.ui.treeWidget.selectedItems():
 					deletionlist.append(int(i.text(1))-1)
+					del(i)
 				deletionlist.reverse()
+				self.connection.sthchanging=True
 				for i in deletionlist:
 					self.connection.call('delete',i) 
+				self.connection.manualPlaylistUpdate()
 		
 		
 	

@@ -15,13 +15,14 @@ class Connection(QtCore.QThread):
 				exit(1)
 		self.status=self.call('status')
 		#po pobraniu info wysyla sygnal
-		self.emit(QtCore.SIGNAL("get_status()"),)
 		self.sleep(1)
 		self.running=True
 		self.currentsong=self.call('currentsong')
 		self.currentplaylist=self.call('playlist')
-		self.state=self.call('status')['state']
-		
+		self.playlistinfo=self.call('playlistinfo')
+		self.state=self.status['state']
+		self.sthchanging=False
+		self.emit(QtCore.SIGNAL("get_status()"),)
 
 		while self.running:
 			self.sleep(1)
@@ -33,8 +34,9 @@ class Connection(QtCore.QThread):
 				#self.sleep(1)
 			if self.currentplaylist!=self.call('playlist'):
 				self.currentplaylist=self.call('playlist')
-				self.emit(QtCore.SIGNAL("change_playlist()"),)
-				#self.sleep(1)
+				self.playlistinfo=self.call('playlistinfo')
+				if not self.sthchanging:
+					self.emit(QtCore.SIGNAL("change_playlist()"),)
 			try:
 				if self.state!=self.call('status')['state']:
 					#self.sleep(1)
@@ -80,6 +82,11 @@ class Connection(QtCore.QThread):
 			except: 
 					value=None
 			return value
+	def manualPlaylistUpdate(self):
+		self.currentplaylist=self.call('playlist')
+		self.playlistinfo=self.call('playlistinfo')		
+		self.sthchanging=False
+		self.emit(QtCore.SIGNAL("change_playlist()"),)
 class LoadDatabase(QtCore.QThread):
 	def __init__(self,parent,listall):
 		super(LoadDatabase,self).__init__(parent)
