@@ -9,8 +9,10 @@ class Player(QtGui.QMainWindow):
 		QtGui.QWidget.__init__(self,parent)
 		self.ui=Ui_MainWindow()
 		self.ui.setupUi(self)
-		self.ui.treeWidget.setColumnWidth(0,17)
-		self.ui.treeWidget.setHeaderLabel("#")
+		self.ui.treeWidget.setColumnWidth(0,23)
+		self.ui.treeWidget.setHeaderLabel(" ")
+		self.ui.treeWidget.setColumnHidden(0,True)
+
 		self.ui.treeWidget_2.setHeaderLabel("Artists / Albums / Tracks")
 		self.firststart=True
 		self.mute=False
@@ -126,7 +128,7 @@ class Player(QtGui.QMainWindow):
 		#ladowanie playlisty:
 		for track in self.connection.playlistinfo:
 			title,artist,album=self.getTags(track)
-			item=QtGui.QTreeWidgetItem([" ",str(int(track['pos'])+1),artist,title,album,track['file'].split("/")[-1],track['file']])
+			item=QtGui.QTreeWidgetItem([str(int(track['pos'])+1),artist,title,album,track['file'].split("/")[-1],track['file']])
 			self.ui.treeWidget.addTopLevelItem(item)
 		self.highlightTrack()
 		
@@ -235,18 +237,24 @@ class Player(QtGui.QMainWindow):
 	def highlightTrack(self):
 		try:
 			item=self.ui.treeWidget.topLevelItem(int(self.connection.currentsong['pos']))
-			item.setText(0,"#")
+			for i in range(item.columnCount()):
+				font=item.font(i)
+				font.setBold(True)
+				item.setFont(i,font)
 
 		except: item=None
 	
 		try:
-			self.plItem.setText(0,"")
-
+			
+			for i in range(self.plItem.columnCount()):
+				font=self.plItem.font(i)
+				font.setBold(False)
+				self.plItem.setFont(i,font)
 		except: pass
 		self.plItem=item
 
 	def on_treeWidget_itemActivated(self,e):
-		nr=e.text(1)
+		nr=e.text(0)
 		self.connection.play(int(nr)-1)
 		self.play=True
 		self.pupd.timer.start()
@@ -273,7 +281,7 @@ class Player(QtGui.QMainWindow):
 			if event.key() == QtCore.Qt.Key_Escape:
 				deletionlist=[]
 				for i in self.ui.treeWidget.selectedItems():
-					deletionlist.append(int(i.text(1))-1)
+					deletionlist.append(int(i.text(0))-1)
 					del(i)
 				deletionlist.reverse()
 				self.connection.sthchanging=True

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'qplayer.ui'
 #
-# Created: Thu Oct 14 10:21:48 2010
+# Created: Fri Oct 15 10:50:15 2010
 #      by: PyQt4 UI code generator 4.7.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -114,14 +114,6 @@ class Ui_MainWindow(object):
         self.volImg.setObjectName("volImg")
         self.horizontalLayout.addWidget(self.volImg)
         self.verticalLayout_2.addWidget(self.frame)
-        self.frame_2 = QtGui.QFrame(self.centralwidget)
-        self.frame_2.setFrameShape(QtGui.QFrame.StyledPanel)
-        self.frame_2.setFrameShadow(QtGui.QFrame.Raised)
-        self.frame_2.setObjectName("frame_2")
-        self.horizontalLayout_2 = QtGui.QHBoxLayout(self.frame_2)
-        self.horizontalLayout_2.setContentsMargins(-1, 0, -1, 0)
-        self.horizontalLayout_2.setObjectName("horizontalLayout_2")
-        self.verticalLayout_2.addWidget(self.frame_2)
         self.tabWidget = QtGui.QTabWidget(self.centralwidget)
         self.tabWidget.setObjectName("tabWidget")
         self.currentplaylist = QtGui.QWidget()
@@ -164,12 +156,11 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow", "MainWindow", None, QtGui.QApplication.UnicodeUTF8))
-        self.treeWidget.headerItem().setText(1, QtGui.QApplication.translate("MainWindow", "no", None, QtGui.QApplication.UnicodeUTF8))
-        self.treeWidget.headerItem().setText(2, QtGui.QApplication.translate("MainWindow", "Track", None, QtGui.QApplication.UnicodeUTF8))
-        self.treeWidget.headerItem().setText(3, QtGui.QApplication.translate("MainWindow", "Artist", None, QtGui.QApplication.UnicodeUTF8))
-        self.treeWidget.headerItem().setText(4, QtGui.QApplication.translate("MainWindow", "Album", None, QtGui.QApplication.UnicodeUTF8))
-        self.treeWidget.headerItem().setText(5, QtGui.QApplication.translate("MainWindow", "File name", None, QtGui.QApplication.UnicodeUTF8))
-        self.treeWidget.headerItem().setText(6, QtGui.QApplication.translate("MainWindow", "File path", None, QtGui.QApplication.UnicodeUTF8))
+        self.treeWidget.headerItem().setText(1, QtGui.QApplication.translate("MainWindow", "Track", None, QtGui.QApplication.UnicodeUTF8))
+        self.treeWidget.headerItem().setText(2, QtGui.QApplication.translate("MainWindow", "Artist", None, QtGui.QApplication.UnicodeUTF8))
+        self.treeWidget.headerItem().setText(3, QtGui.QApplication.translate("MainWindow", "Album", None, QtGui.QApplication.UnicodeUTF8))
+        self.treeWidget.headerItem().setText(4, QtGui.QApplication.translate("MainWindow", "File name", None, QtGui.QApplication.UnicodeUTF8))
+        self.treeWidget.headerItem().setText(5, QtGui.QApplication.translate("MainWindow", "File path", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.currentplaylist), QtGui.QApplication.translate("MainWindow", "Current Playlist", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.musiccollection), QtGui.QApplication.translate("MainWindow", "Music Collection", None, QtGui.QApplication.UnicodeUTF8))
 
