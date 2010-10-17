@@ -308,6 +308,9 @@
           <property name="showDropIndicator" stdset="0">
            <bool>false</bool>
           </property>
+          <property name="dragEnabled">
+           <bool>true</bool>
+          </property>
           <property name="selectionMode">
            <enum>QAbstractItemView::ExtendedSelection</enum>
           </property>
@@ -317,9 +320,6 @@
           <property name="rootIsDecorated">
            <bool>false</bool>
           </property>
-          <attribute name="headerHighlightSections">
-           <bool>false</bool>
-          </attribute>
           <attribute name="headerHighlightSections">
            <bool>false</bool>
           </attribute>

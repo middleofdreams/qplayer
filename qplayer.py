@@ -30,7 +30,7 @@ class Player(QtGui.QMainWindow):
 		QtCore.QObject.connect(self.connection,QtCore.SIGNAL("change_song()"), self.changeSong)
 		QtCore.QObject.connect(self.connection,QtCore.SIGNAL("change_playlist()"), self.loadPlaylist)
 		QtCore.QObject.connect(self.connection,QtCore.SIGNAL("playback_error()"), self.playbackError)
-
+		self.ui.progressBar.mousePressEvent=self.pBkPE
 		#tu bedzie wiecej podlaczen... zapewne
 		#odpalenie watku
 		self.connection.start()
@@ -300,7 +300,14 @@ class Player(QtGui.QMainWindow):
 				for i in deletionlist:
 					self.connection.call('delete',i) 
 				self.connection.manualPlaylistUpdate()
-		
+	def pBkPE(self,event):
+		newpx= int(event.x())
+		maxpx= int(self.ui.progressBar.width())
+		maxs= int(self.ui.progressBar.maximum())
+		newS=(newpx*maxs)//maxpx
+		print newS
+		print self.getTime({'time':newS})
+		self.connection.client.seek(str(newS))	
 		
 	
 	
@@ -312,6 +319,7 @@ class Player(QtGui.QMainWindow):
 		else:
 			icon.addPixmap(QtGui.QPixmap(":/icons/media-playback-start.png"))
 		self.ui.playBtn.setIcon(icon)
+
 
 	def getTags(self,track):
 			try: artist=track['artist']
