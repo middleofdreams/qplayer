@@ -96,7 +96,9 @@ class Connection(QtCore.QThread):
 			return value
 	def manualPlaylistUpdate(self):
 		self.currentplaylist=self.call('playlist')
-		self.playlistinfo=self.call('playlistinfo')		
+		self.playlistinfo=self.call('playlistinfo')
+		self.currenttrack=self.call('currenttrack')		
+		
 		self.sthchanging=False
 
 		self.emit(QtCore.SIGNAL("change_playlist()"),)

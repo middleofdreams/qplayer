@@ -245,14 +245,7 @@ class Player(QtGui.QMainWindow):
 		icon.addPixmap(QtGui.QPixmap(":/icons/audio-volume-"+vol+".png"))
 		self.ui.volImg.setIcon(icon)
 	def highlightTrack(self):
-		try:
-			item=self.ui.treeWidget.topLevelItem(int(self.connection.currentsong['pos']))
-			for i in range(item.columnCount()):
-				font=item.font(i)
-				font.setBold(True)
-				item.setFont(i,font)
 
-		except: item=None
 	
 		try:
 		
@@ -261,6 +254,14 @@ class Player(QtGui.QMainWindow):
 				font.setBold(False)
 				self.plItem.setFont(i,font)
 		except: pass
+		try:
+			item=self.ui.treeWidget.topLevelItem(int(self.connection.currentsong['pos']))
+			for i in range(item.columnCount()):
+				font=item.font(i)
+				font.setBold(True)
+				item.setFont(i,font)
+
+		except: item=None
 		self.plItem=item
 
 	def on_treeWidget_itemActivated(self,e):
@@ -291,7 +292,8 @@ class Player(QtGui.QMainWindow):
 			if event.key() == QtCore.Qt.Key_Escape:
 				deletionlist=[]
 				for i in self.ui.treeWidget.selectedItems():
-					deletionlist.append(int(i.text(0))-1)
+					nr=int(i.text(0))-1
+					deletionlist.append(nr)
 					del(i)
 				deletionlist.reverse()
 				if int(self.connection.currentsong['pos'])+1 in deletionlist:	
@@ -300,7 +302,7 @@ class Player(QtGui.QMainWindow):
 				for i in deletionlist:
 					self.connection.call('delete',i) 
 				self.connection.manualPlaylistUpdate()
-		
+			
 		
 	
 	
