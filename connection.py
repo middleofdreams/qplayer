@@ -84,6 +84,7 @@ class Connection(QtCore.QThread):
 	def call(self,cmd,*args):
 		if cmd=='status':
 			value=getattr(self.client,cmd)(*args)
+			
 			if value and 'state' in value:
 				return value
 			else: 

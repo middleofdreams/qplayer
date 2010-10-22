@@ -1,4 +1,4 @@
-import sys
+import sys, subprocess
 from PyQt4 import QtCore, QtGui,Qt
 from qplayer_ui import * 
 from res_rc import *
@@ -9,11 +9,18 @@ class Player(QtGui.QMainWindow):
 		QtGui.QWidget.__init__(self,parent)
 		self.ui=Ui_MainWindow()
 		self.ui.setupUi(self)
+		self.playlistloading=False
+
 		self.ui.treeWidget.setColumnWidth(0,23)
 		self.ui.treeWidget.setHeaderLabel(" ")
 		self.ui.treeWidget.setColumnHidden(0,True)
 		self.ui.treeWidget.setColumnHidden(4,True)
 		self.ui.treeWidget.setColumnHidden(5,True)
+		self.ui.treeWidget.rowsInserted=self.myMoveEvent
+		self.ui.treeWidget.setDragDropMode(QtGui.QAbstractItemView.InternalMove)
+		self.ui.treeWidget.setDragEnabled(True)
+		self.ui.treeWidget.setAcceptDrops(True)
+		
 
 		self.ui.treeWidget_2.setHeaderLabel("Artists / Albums / Tracks")
 		self.firststart=True
@@ -128,11 +135,15 @@ class Player(QtGui.QMainWindow):
 	def loadPlaylist(self,manual=False):
 		self.ui.treeWidget.clear()
 		#ladowanie playlisty:
+		self.playlistloading=True
 		for track in self.connection.playlistinfo:
 			title,artist,album=self.getTags(track)
 			time=str(int(track['time'])//60).zfill(2)+":"+str(int(track['time'])%60).zfill(2)
-			item=QtGui.QTreeWidgetItem([str(int(track['pos'])+1),artist,title,album,track['file'].split("/")[-1],track['file'],time])
+			item=QtGui.QTreeWidgetItem([str(int(track['pos'])+1),title,artist,album,track['file'].split("/")[-1],track['file'],time])
+			item.setFlags(QtCore.Qt.ItemFlags(53))
 			self.ui.treeWidget.addTopLevelItem(item)
+		self.playlistloading=False
+
 		if not self.connection.manualplaylistupdating:
 			self.highlightTrack()
 		else:
@@ -218,13 +229,11 @@ class Player(QtGui.QMainWindow):
 		if self.mute:
 			self.getVolIcon()
 			self.mute=False
-			vol=self.vol*5
-			self.connection.call('setvol',vol)
+			subprocess.Popen('/usr/bin/amixer sset PCM unmute', shell=True, stdout=subprocess.PIPE)
 		else:
 			icon.addPixmap(QtGui.QPixmap(":/icons/audio-volume-muted.png"))
 			self.mute=True
-			self.vol=int(self.connection.status['volume'])//5
-			self.connection.call('setvol',0)
+			subprocess.Popen('/usr/bin/amixer sset PCM mute', shell=True, stdout=subprocess.PIPE)
 			
 			self.ui.volImg.setIcon(icon)
 	def on_volSlider_valueChanged(self,a):
@@ -270,6 +279,20 @@ class Player(QtGui.QMainWindow):
 		self.play=True
 		self.pupd.timer.start()
 		self.setPlayPauseBtn()
+	
+	def myMoveEvent(self,a,b,c):
+		items=self.ui.treeWidget.selectedItems()
+
+		QtGui.QTreeWidget.rowsInserted(self.ui.treeWidget,a,b,c)
+		if not self.playlistloading:
+			elements=self.ui.treeWidget.topLevelItem(b).text(1)
+			print
+			print "Element"
+			print elements
+			print "przeniesiony na pozycje"
+			print b
+			print
+			
 	def on_treeWidget_2_itemActivated(self,e):
 		self.connection.sthchanging=True
 		if e.childCount()==0:
@@ -295,6 +318,7 @@ class Player(QtGui.QMainWindow):
 					nr=int(i.text(0))-1
 					deletionlist.append(nr)
 					del(i)
+				deletionlist.sort()
 				deletionlist.reverse()
 				if int(self.connection.currentsong['pos'])+1 in deletionlist:	
 					self.connection.manualplaylistupdating=True
@@ -308,10 +332,15 @@ class Player(QtGui.QMainWindow):
 		maxpx= int(self.ui.progressBar.width())
 		maxs= int(self.ui.progressBar.maximum())
 		newS=(newpx*maxs)//maxpx
-		self.connection.client.seek(self.connection.status['song'],str(newS))	
-		self.ui.progressBar.setValue(newS)
-		self.ui.progressBar.setFormat(self.getTime({'time':newS}))
-	
+		if float(newS)/float(maxs)*100 >= 95:
+			self.ui.progressBar.setValue(newS)
+			self.ui.progressBar.setFormat(self.getTime({'time':newS}))
+			self.connection.next()
+		else:
+			self.connection.client.seek(self.connection.status['song'],str(newS))	
+			self.ui.progressBar.setValue(newS)
+			self.ui.progressBar.setFormat(self.getTime({'time':newS}))
+
 	def setPlayPauseBtn(self):
 		icon=QtGui.QIcon()
 		if self.play:

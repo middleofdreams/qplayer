@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'qplayer.ui'
 #
-# Created: Fri Oct 15 10:59:43 2010
+# Created: Mon Oct 18 08:44:53 2010
 #      by: PyQt4 UI code generator 4.7.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -125,10 +125,19 @@ class Ui_MainWindow(object):
         self.verticalLayout = QtGui.QVBoxLayout(self.currentplaylist)
         self.verticalLayout.setObjectName("verticalLayout")
         self.treeWidget = QtGui.QTreeWidget(self.currentplaylist)
-        self.treeWidget.setProperty("showDropIndicator", False)
+        self.treeWidget.setProperty("showDropIndicator", True)
+        self.treeWidget.setDragEnabled(True)
+        self.treeWidget.setDragDropOverwriteMode(False)
+        self.treeWidget.setDragDropMode(QtGui.QAbstractItemView.InternalMove)
+        self.treeWidget.setDefaultDropAction(QtCore.Qt.MoveAction)
+        self.treeWidget.setAlternatingRowColors(True)
         self.treeWidget.setSelectionMode(QtGui.QAbstractItemView.ExtendedSelection)
+        self.treeWidget.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
         self.treeWidget.setIndentation(0)
         self.treeWidget.setRootIsDecorated(False)
+        self.treeWidget.setItemsExpandable(True)
+        self.treeWidget.setAllColumnsShowFocus(True)
+        self.treeWidget.setExpandsOnDoubleClick(True)
         self.treeWidget.setObjectName("treeWidget")
         self.treeWidget.header().setHighlightSections(False)
         self.verticalLayout.addWidget(self.treeWidget)
