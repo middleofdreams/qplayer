@@ -47,9 +47,11 @@ class Player(QtGui.QMainWindow):
 		self.pupd.start()
 	
 	def myDragEvent(self,e):
+		self.connection.sthchanging=True
 		self.selectedLen=len(self.ui.treeWidget.selectedItems())-1
 		self.items=self.ui.treeWidget.selectedItems()
 		QtGui.QTreeWidget.dropEvent(self.ui.treeWidget,e)
+
 	def databaseFill(self):
 		
 			for item in self.loaddtb.items:
@@ -307,6 +309,7 @@ class Player(QtGui.QMainWindow):
 					else:
 						self.connection.client.move(i,b)
 					iterator-=1
+				self.connection.manualPlaylistUpdate()
 
 		else:
 			self.selectedLen-=1
