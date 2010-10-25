@@ -17,6 +17,9 @@ class Player(QtGui.QMainWindow):
 		self.ui.treeWidget.setColumnHidden(4,True)
 		self.ui.treeWidget.setColumnHidden(5,True)
 		self.ui.treeWidget.rowsInserted=self.myMoveEvent
+		self.selectedLen=0
+		self.ui.treeWidget.dropEvent=self.myDragEvent
+
 		self.ui.treeWidget.setDragDropMode(QtGui.QAbstractItemView.InternalMove)
 		self.ui.treeWidget.setDragEnabled(True)
 		self.ui.treeWidget.setAcceptDrops(True)
@@ -43,6 +46,10 @@ class Player(QtGui.QMainWindow):
 		self.connection.start()
 		self.pupd.start()
 	
+	def myDragEvent(self,e):
+		self.selectedLen=len(self.ui.treeWidget.selectedItems())-1
+		self.items=self.ui.treeWidget.selectedItems()
+		QtGui.QTreeWidget.dropEvent(self.ui.treeWidget,e)
 	def databaseFill(self):
 		
 			for item in self.loaddtb.items:
@@ -282,17 +289,27 @@ class Player(QtGui.QMainWindow):
 	
 	def myMoveEvent(self,a,b,c):
 		QtGui.QTreeWidget.rowsInserted(self.ui.treeWidget,a,b,c)
-		if not self.playlistloading:
-			elements=self.ui.treeWidget.topLevelItem(b).text(1)
-			print
-			print "Element"
-			print elements
-			print "przeniesiony na pozycje"
-			print b
-			c=self.ui.treeWidget.topLevelItem(b).text(0)
-			z=int(c)-1
-			print c
-			self.connection.client.move(z,b)
+		if self.selectedLen==0:
+			if not self.playlistloading:
+				elements=[]
+				for i in self.items:
+					elements.append(int(i.text(0))-1)
+				elements.sort()
+				elements.reverse()
+				iterator=0
+				#print elements
+				#if self.selectedLen>0:
+				#	b=b+self.selectedLen
+				#	self.selectedLen-=1
+				for i in elements:
+					if i>b:
+						self.connection.client.move(i-iterator,b)
+					else:
+						self.connection.client.move(i,b)
+					iterator+=1
+
+		else:
+			self.selectedLen-=1
 			
 	def on_treeWidget_2_itemActivated(self,e):
 		self.connection.sthchanging=True
