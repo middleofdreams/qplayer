@@ -2,12 +2,12 @@
 
 # Form implementation generated from reading ui file 'qplayer.ui'
 #
-# Created: Mon Oct 18 08:44:53 2010
-#      by: PyQt4 UI code generator 4.7.4
+# Created: Tue Apr 22 10:42:46 2014
+#      by: pyside-uic 0.2.15 running on PySide 1.2.1
 #
 # WARNING! All changes made in this file will be lost!
 
-from PyQt4 import QtCore, QtGui
+from PySide import QtCore, QtGui
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -21,7 +21,7 @@ class Ui_MainWindow(object):
         self.centralwidget.setObjectName("centralwidget")
         self.verticalLayout_2 = QtGui.QVBoxLayout(self.centralwidget)
         self.verticalLayout_2.setSpacing(0)
-        self.verticalLayout_2.setMargin(0)
+        self.verticalLayout_2.setContentsMargins(0, 0, 0, 0)
         self.verticalLayout_2.setObjectName("verticalLayout_2")
         self.frame = QtGui.QFrame(self.centralwidget)
         self.frame.setFrameShape(QtGui.QFrame.StyledPanel)
@@ -49,8 +49,8 @@ class Ui_MainWindow(object):
         self.playBtn.setLayoutDirection(QtCore.Qt.LeftToRight)
         self.playBtn.setText("")
         icon2 = QtGui.QIcon()
-        icon2.addPixmap(QtGui.QPixmap(":/icons/media-playback-pause.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         icon2.addPixmap(QtGui.QPixmap(":/icons/media-playback-start.png"), QtGui.QIcon.Normal, QtGui.QIcon.On)
+        icon2.addPixmap(QtGui.QPixmap(":/icons/media-playback-pause.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.playBtn.setIcon(icon2)
         self.playBtn.setIconSize(QtCore.QSize(32, 32))
         self.playBtn.setAutoExclusive(False)

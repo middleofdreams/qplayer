@@ -1,12 +1,12 @@
 import sys, subprocess
-from PyQt4 import QtCore, QtGui,Qt
+from PySide import QtCore, QtGui
 from qplayer_ui import * 
 from res_rc import *
 from connection import *
 
 class Player(QtGui.QMainWindow):
 	def __init__(self,parent=None):
-		QtGui.QWidget.__init__(self,parent)
+		QtGui.QMainWindow.__init__(self,None)
 		self.ui=Ui_MainWindow()
 		self.ui.setupUi(self)
 		self.playlistloading=False
@@ -34,6 +34,11 @@ class Player(QtGui.QMainWindow):
 		#stworzenie watku
 		self.connection=Connection(self)
 		self.pupd=ProgressUpdate(self)
+		
+		#buttony
+		self.ui.playBtn.clicked.connect(self.on_playBtn_clicked)
+		
+		
 		#podlaczenie sygnalu z watku do funkcji
 		QtCore.QObject.connect(self.connection,QtCore.SIGNAL("get_status()"), self.loadData)
 		QtCore.QObject.connect(self.pupd.timer,QtCore.SIGNAL("timeout()"), self.updateBar)
@@ -174,7 +179,7 @@ class Player(QtGui.QMainWindow):
 		self.setWindowTitle(song)
 
 
-	@QtCore.pyqtSlot()
+	#@QtCore.pyqtSlot()
 	def on_playBtn_clicked(self):
 		if self.play:
 			self.status.setPlaying("Paused")
@@ -194,7 +199,7 @@ class Player(QtGui.QMainWindow):
 
 
 
-	@QtCore.pyqtSlot()
+	#@QtCore.pyqtSlot()
 	def on_nextBtn_clicked(self):
 		if not self.play:
 			self.connection.play()
@@ -205,7 +210,7 @@ class Player(QtGui.QMainWindow):
 		self.connection.next()
 		self.updateBar(True)
 
-	@QtCore.pyqtSlot()
+	#@QtCore.pyqtSlot()
 	def on_prevBtn_clicked(self):
 
 		if not self.play:
@@ -232,7 +237,7 @@ class Player(QtGui.QMainWindow):
 
 
 
-	@QtCore.pyqtSlot()
+	#@QtCore.pyqtSlot()
 	def on_volImg_clicked(self):
 		icon=QtGui.QIcon()
 		if self.mute:

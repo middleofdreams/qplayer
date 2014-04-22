@@ -1,5 +1,5 @@
-import mpd
-from PyQt4 import QtCore,QtGui
+#import mpd
+from PySide import QtCore,QtGui
 
 def getTrackNr(track):
 	try: nr=track['track']
