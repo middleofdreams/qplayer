@@ -1,4 +1,4 @@
-#import mpd
+import mpd
 from PySide import QtCore,QtGui
 
 def getTrackNr(track):
@@ -16,10 +16,10 @@ class Connection(QtCore.QThread):
 	def run(self):
 		PASSWORD = False
 		self.client = mpd.MPDClient()
-		self.client.connect("localhost", 6600)
+		self.client.connect("185.5.96.147", 443)
 		if PASSWORD:
 			try:
-				client.password(PASSWORD)
+				self.client.password(PASSWORD)
 			except CommandError:
 				exit(1)
 		self.status=self.call('status')
@@ -137,7 +137,7 @@ class LoadDatabase(QtCore.QThread):
 				#if not artist in album: albums[artist]=[]
 				try:albums[artist]
 				except KeyError:albums[artist]={}
-				if 	albums[artist].has_key(album):
+				if 	album in albums[artist]:
 					albums[artist][album].append(track)
 				else :
 					albums[artist][album]=[track]

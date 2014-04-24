@@ -37,9 +37,14 @@ class Player(QtGui.QMainWindow):
 		
 		#buttony
 		self.ui.playBtn.clicked.connect(self.on_playBtn_clicked)
+		self.ui.prevBtn.clicked.connect(self.on_prevBtn_clicked)
+		self.ui.nextBtn.clicked.connect(self.on_nextBtn_clicked)
+		self.ui.stopBtn.clicked.connect(self.on_stopBtn_clicked)
+		self.ui.treeWidget.itemActivated.connect(self.on_treeWidget_itemActivated)
 		
 		
 		#podlaczenie sygnalu z watku do funkcji
+		#self.connection.get_status.connect(self.loadData)
 		QtCore.QObject.connect(self.connection,QtCore.SIGNAL("get_status()"), self.loadData)
 		QtCore.QObject.connect(self.pupd.timer,QtCore.SIGNAL("timeout()"), self.updateBar)
 		QtCore.QObject.connect(self.connection,QtCore.SIGNAL("change_song()"), self.changeSong)
@@ -61,7 +66,7 @@ class Player(QtGui.QMainWindow):
 		
 			for item in self.loaddtb.items:
 				self.ui.treeWidget_2.addTopLevelItem(item)
-			self.ui.treeWidget_2.sortItems(0,0)
+			self.ui.treeWidget_2.sortItems(0,QtCore.Qt.SortOrder.AscendingOrder)
 							
 	def updateBar(self,force=False):
 		if force:
